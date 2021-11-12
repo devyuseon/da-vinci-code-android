@@ -6,12 +6,14 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 import com.hsu.davincicode.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
+    private Handler handler; // 스레드에서 UI 작업하기 위한 핸들러
 
     private UserInfo userInfo = UserInfo.getInstance();
     private NetworkObj networkObj;
@@ -24,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(binding.getRoot());
 
+        handler = new Handler();
+
         userName = userInfo.getUserName();
         networkObj = userInfo.getNetworkObj();
         networkUtils = new NetworkUtils(networkObj);
@@ -34,7 +38,10 @@ public class MainActivity extends AppCompatActivity {
 
         binding.btnSend.setOnClickListener(v -> {
             sendMsgToServer();
+            binding.etMsg.setText("");
         });
+
+        doReceive();
     }
 
     public void sendMsgToServer() {
@@ -45,7 +52,26 @@ public class MainActivity extends AppCompatActivity {
 
     public void logOut() {
         ChatMsg obj = new ChatMsg(userName, "400", "Bye");
-        networkUtils.Logout(obj);
+        networkUtils.logout(obj);
         startActivity(new Intent(this, LoginActivity.class)); // 다시 로그인 화면으로 돌아감
     }
+
+    // Server Message 수신
+    public void doReceive() {
+        new Thread() {
+            public void run() {
+                while (true) {
+                    ChatMsg cm;
+                    cm = networkUtils.readChatMsg();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            binding.tvReceivedMsg.setText(String.format("[%s] %s", cm.UserName, cm.data));
+                        }
+                    });
+                }
+            }
+        }.start();
+    }
+
 }

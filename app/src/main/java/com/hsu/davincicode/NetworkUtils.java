@@ -15,7 +15,7 @@ public class NetworkUtils {
         this.networkObj = networkObj;
     }
 
-    public void Logout(ChatMsg cm) {
+    public void logout(ChatMsg cm) {
         new Thread() {
             public void run() {
                 try {
@@ -47,4 +47,26 @@ public class NetworkUtils {
             }
         }.start();
     }
+
+    // ChatMsg 를 읽어서 Return, Java 호환성 문제로 field별로 수신해서 ChatMsg 로 만들어 Return
+    public ChatMsg readChatMsg()  {
+        String code = null, userName = null, data = null;
+        ChatMsg cm = new ChatMsg("","","");
+        try {
+            cm.code = (String) networkObj.getOis().readObject();
+            cm.UserName = (String) networkObj.getOis().readObject();
+            cm.data = (String) networkObj.getOis().readObject();
+            if (cm.code.matches("300")) {
+                cm.imgbytes = (byte[]) networkObj.getOis().readObject();
+            }
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            logout(cm);
+            e.printStackTrace();
+        }
+        return cm;
+    }
+
 }

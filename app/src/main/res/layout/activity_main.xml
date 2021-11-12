@@ -37,11 +37,12 @@
         app:layout_constraintTop_toBottomOf="@+id/et_msg" />
 
     <TextView
-        android:id="@+id/tv_received"
+        android:id="@+id/tv_receivedMsg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_send" />
 </androidx.constraintlayout.widget.ConstraintLayout>
