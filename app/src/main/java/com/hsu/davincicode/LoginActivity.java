@@ -2,10 +2,15 @@ package com.hsu.davincicode;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.hsu.davincicode.databinding.ActivityLoginBinding;
 
@@ -17,14 +22,13 @@ import java.net.Socket;
 public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
 
-    private UserInfoViewModel userInfoViewModel;
-
     public Socket socket;
     public ObjectInputStream ois;
     public ObjectOutputStream oos;
 
     private NetworkUtils networkUtils;
     private NetworkObj networkObj;
+    private String userName = "";
 
     final String ip_addr = "10.0.2.2"; // Emulator PC의 127.0.0.1
     final int port_no = 30000;
@@ -35,28 +39,34 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(binding.getRoot());
 
-        userInfoViewModel = new ViewModelProvider(this).get(UserInfoViewModel.class);
+        binding.btnLogin.setOnClickListener(v -> {
+            userName = binding.etName.getText().toString();
+            new Thread() {
+                public void run() {
+                    try {
+                        // 네트워크 관련 설정 ..
+                        socket = new Socket(ip_addr, port_no);
+                        oos = new ObjectOutputStream(socket.getOutputStream());
+                        ois = new ObjectInputStream(socket.getInputStream());
+                        networkObj = new NetworkObj(socket, ois, oos);
+                        networkUtils = new NetworkUtils(networkObj);
 
-        binding.btnLogin.setOnClickListener(v -> new Thread() {
-            public void run() {
-                String userName = binding.etName.getText().toString();
-                try {
-                    socket = new Socket(ip_addr, port_no);
-                    oos = new ObjectOutputStream(socket.getOutputStream());
-                    ois = new ObjectInputStream(socket.getInputStream());
-                    networkObj = new NetworkObj(socket, ois, oos);
-                    if(userInfoViewModel != null) {
-                        userInfoViewModel.init(networkObj, userName);
+                        // 싱글턴인 UserInfo 인스턴스
+                        UserInfo userInfo = UserInfo.getInstance();
+                        userInfo.init(userName, networkObj);
+
+                        // login 정보 서버에 전달
+                        ChatMsg obj = new ChatMsg(userName, "100", "Hello");
+                        networkUtils.sendChatMsg(obj);
+
+                        startMainActivity();
+
+                    } catch (IOException e) {
+                        Log.w("Login", e);
                     }
-                    networkUtils = new NetworkUtils(networkObj);
-                    ChatMsg obj = new ChatMsg(userName, "100", "Hello");
-                    networkUtils.sendChatMsg(obj, networkObj);
-                    startMainActivity();
-                } catch (IOException e) {
-                    Log.w("Login", e);
                 }
-            }
-        }.start());
+            }.start();
+        });
     }
 
     public void startMainActivity() {

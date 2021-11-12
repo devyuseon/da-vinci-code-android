@@ -19,23 +19,11 @@ public class NetworkObj {
         return socket;
     }
 
-    public void setSocket(Socket socket) {
-        this.socket = socket;
-    }
-
     public ObjectInputStream getOis() {
         return ois;
     }
 
-    public void setOis(ObjectInputStream ois) {
-        this.ois = ois;
-    }
-
     public ObjectOutputStream getOos() {
         return oos;
-    }
-
-    public void setOos(ObjectOutputStream oos) {
-        this.oos = oos;
     }
 }
