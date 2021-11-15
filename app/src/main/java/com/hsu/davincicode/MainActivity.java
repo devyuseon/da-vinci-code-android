@@ -38,21 +38,22 @@ public class MainActivity extends AppCompatActivity {
 
         binding.btnSend.setOnClickListener(v -> {
             sendMsgToServer();
-            binding.etMsg.setText("");
+            binding.etCode.setText("");
+            binding.etData.setText("");
         });
 
         doReceive();
     }
 
     public void sendMsgToServer() {
-        String msg = binding.etMsg.getText().toString();
-        ChatMsg obj = new ChatMsg(userName, "200", msg);
+        String code = binding.etCode.getText().toString();
+        String msg = binding.etData.getText().toString();
+        ChatMsg obj = new ChatMsg(userName, code, msg);
         networkUtils.sendChatMsg(obj); // 서버로 msg 전송
     }
 
     public void logOut() {
-        ChatMsg obj = new ChatMsg(userName, "400", "Bye");
-        networkUtils.logout(obj);
+        networkUtils.logout();
         startActivity(new Intent(this, LoginActivity.class)); // 다시 로그인 화면으로 돌아감
     }
 

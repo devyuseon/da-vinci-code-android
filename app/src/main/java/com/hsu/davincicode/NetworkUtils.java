@@ -10,15 +10,17 @@ import java.io.ObjectOutputStream;
 public class NetworkUtils {
 
     public NetworkObj networkObj;
+    private UserInfo userInfo = UserInfo.getInstance();
 
     public NetworkUtils(NetworkObj networkObj) {
         this.networkObj = networkObj;
     }
 
-    public void logout(ChatMsg cm) {
+    public void logout() {
         new Thread() {
             public void run() {
                 try {
+                    ChatMsg cm = new ChatMsg(userInfo.getUserName(), "200", "bye");
                     sendChatMsg(cm);
                     networkObj.getOos().close();
                     networkObj.getOis().close();
@@ -38,8 +40,6 @@ public class NetworkUtils {
                     networkObj.getOos().writeObject(cm.code);
                     networkObj.getOos().writeObject(cm.UserName);
                     networkObj.getOos().writeObject(cm.data);
-                    if (cm.code.equals("300")) // Image 첨부인 경우
-                        networkObj.getOos().writeObject(cm.imgbytes);
                     //oos.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -56,14 +56,10 @@ public class NetworkUtils {
             cm.code = (String) networkObj.getOis().readObject();
             cm.UserName = (String) networkObj.getOis().readObject();
             cm.data = (String) networkObj.getOis().readObject();
-            if (cm.code.matches("300")) {
-                cm.imgbytes = (byte[]) networkObj.getOis().readObject();
-            }
-
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            logout(cm);
+            logout();
             e.printStackTrace();
         }
         return cm;

@@ -17,10 +17,11 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/et_msg"
+        android:id="@+id/et_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:hint="data"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,8 +34,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="send msg"
-        app:layout_constraintEnd_toEndOf="@+id/et_msg"
-        app:layout_constraintTop_toBottomOf="@+id/et_msg" />
+        app:layout_constraintEnd_toEndOf="@+id/et_data"
+        app:layout_constraintTop_toBottomOf="@+id/et_data" />
 
     <TextView
         android:id="@+id/tv_receivedMsg"
@@ -45,4 +46,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_send" />
+
+    <EditText
+        android:id="@+id/et_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:ems="10"
+        android:hint="code"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/et_data"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
