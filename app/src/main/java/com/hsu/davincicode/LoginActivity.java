@@ -59,7 +59,8 @@ public class LoginActivity extends AppCompatActivity {
                         ChatMsg obj = new ChatMsg(userName, "100", "Hello");
                         networkUtils.sendChatMsg(obj);
 
-                        startMainActivity();
+                        //startMainActivity();
+                        startRommListActivity();
 
                     } catch (IOException e) {
                         Log.w("Login", e);
@@ -71,5 +72,8 @@ public class LoginActivity extends AppCompatActivity {
 
     public void startMainActivity() {
         startActivity(new Intent(this, MainActivity.class));
+    }
+    public void startRommListActivity() {
+        startActivity(new Intent(this, RoomListActivity.class));
     }
 }
