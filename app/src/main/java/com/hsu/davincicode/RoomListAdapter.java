@@ -50,10 +50,11 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
             btnRequestRoomEnterance.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final EditText etPw = new EditText(view.getContext());
+                    //final EditText etPw = new EditText(view.getContext());
+                    View dialogView = View.inflate(view.getContext(), R.layout.dialog_input_passwd, null);
+                    EditText etPw = dialogView.findViewById(R.id.et_dialog_passwd);
                     AlertDialog builder = new AlertDialog.Builder(view.getContext())
-                            .setTitle("방 비밀번호 입력")
-                            .setView(etPw)
+                            .setView(dialogView)
                             .setNegativeButton("취소", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {

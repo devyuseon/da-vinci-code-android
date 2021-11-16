@@ -75,7 +75,6 @@ public class RoomListActivity extends AppCompatActivity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setView(dialogView)
-                .setTitle("방 생성하기")
                 .setCancelable(false);
 
         AlertDialog alertDialog = builder.create();
