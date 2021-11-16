@@ -49,9 +49,9 @@ public class NetworkUtils {
     }
 
     // ChatMsg 를 읽어서 Return, Java 호환성 문제로 field별로 수신해서 ChatMsg 로 만들어 Return
-    public ChatMsg readChatMsg()  {
+    public ChatMsg readChatMsg() {
         String code = null, userName = null, data = null;
-        ChatMsg cm = new ChatMsg("","","");
+        ChatMsg cm = new ChatMsg("", "", "");
         try {
             cm.code = (String) networkObj.getOis().readObject();
             cm.UserName = (String) networkObj.getOis().readObject();

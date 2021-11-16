@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.hsu.davincicode.R;
 import com.hsu.davincicode.Room;
 
@@ -47,29 +48,25 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
             networkObj = userInfo.getNetworkObj();
             networkUtils = new NetworkUtils(networkObj);
 
-            btnRequestRoomEnterance.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //final EditText etPw = new EditText(view.getContext());
+            btnRequestRoomEnterance.setOnClickListener(v -> {
+                String[] counts = getTvMaxCount().getText().toString().split("/");
+                int curCount = Integer.parseInt(counts[0]);
+                int maxCount = Integer.parseInt(counts[1]);
+
+                if (curCount < maxCount) {
                     View dialogView = View.inflate(view.getContext(), R.layout.dialog_input_passwd, null);
                     EditText etPw = dialogView.findViewById(R.id.et_dialog_passwd);
                     AlertDialog builder = new AlertDialog.Builder(view.getContext())
                             .setView(dialogView)
-                            .setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    String msg = String.format("%s//%s", tvRoomName.getText().toString(), etPw.getText().toString());
-                                    ChatMsg obj = new ChatMsg(userName, "500", msg);
-                                    networkUtils.sendChatMsg(obj); // 서버로 msg 전송
-                                    dialog.dismiss();
-                                }
+                            .setNegativeButton("취소", (dialog, which) -> dialog.dismiss())
+                            .setPositiveButton("확인", (dialog, which) -> {
+                                String msg = String.format("%s//%s", tvRoomName.getText().toString(), etPw.getText().toString());
+                                ChatMsg obj = new ChatMsg(userName, "500", msg);
+                                networkUtils.sendChatMsg(obj); // 서버로 msg 전송
+                                dialog.dismiss();
                             }).show();
+                } else {
+                    Snackbar.make(view, "방 인원수를 초과할 수 없습니다.", Snackbar.LENGTH_LONG).show();
                 }
             });
         }
