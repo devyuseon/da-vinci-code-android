@@ -30,6 +30,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
         private final TextView tvRoomName;
         private final TextView tvMaxCount;
         private final Button btnRequestRoomEnterance;
+        private String roomId;
 
         private UserInfo userInfo = UserInfo.getInstance();
         private NetworkObj networkObj;
@@ -60,7 +61,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
                             .setView(dialogView)
                             .setNegativeButton("취소", (dialog, which) -> dialog.dismiss())
                             .setPositiveButton("확인", (dialog, which) -> {
-                                String msg = String.format("%s//%s", tvRoomName.getText().toString(), etPw.getText().toString());
+                                String msg = String.format("%s//%s", roomId, etPw.getText().toString());
                                 ChatMsg obj = new ChatMsg(userName, "500", msg);
                                 networkUtils.sendChatMsg(obj); // 서버로 msg 전송
                                 dialog.dismiss();
@@ -100,6 +101,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.roomId = roomList.get(position).getRoomId();
         holder.getTvRoomName().setText(roomList.get(position).getRoomName());
         holder.getTvMaxCount().setText(String.format("%s/%s", roomList.get(position).getCurCount(), roomList.get(position).getMaxCount()));
     }

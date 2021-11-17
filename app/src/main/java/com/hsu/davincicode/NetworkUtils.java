@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 public class NetworkUtils {
 
@@ -55,7 +56,12 @@ public class NetworkUtils {
         try {
             cm.code = (String) networkObj.getOis().readObject();
             cm.UserName = (String) networkObj.getOis().readObject();
-            cm.data = (String) networkObj.getOis().readObject();
+            try {
+                cm.data = (String) networkObj.getOis().readObject();
+            } catch (ClassCastException e) {
+                cm.roomListData = (ArrayList<String>) networkObj.getOis().readObject();
+            }
+
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

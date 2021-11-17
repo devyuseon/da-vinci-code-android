@@ -4,6 +4,7 @@ package com.hsu.davincicode;
 public class UserInfo {
     private String userName;
     private NetworkObj networkObj;
+    private Room myRoom;
 
     public UserInfo() {}
 
@@ -26,5 +27,13 @@ public class UserInfo {
 
     public NetworkObj getNetworkObj() {
         return networkObj;
+    }
+
+    public Room getMyRoom() {
+        return myRoom;
+    }
+
+    public void setMyRoom(Room myRoom) {
+        this.myRoom = myRoom;
     }
 }
