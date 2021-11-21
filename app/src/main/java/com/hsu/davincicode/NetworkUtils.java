@@ -56,11 +56,9 @@ public class NetworkUtils {
         try {
             cm.code = (String) networkObj.getOis().readObject();
             cm.UserName = (String) networkObj.getOis().readObject();
-            try {
-                cm.data = (String) networkObj.getOis().readObject();
-            } catch (ClassCastException e) {
-                cm.roomListData = (ArrayList<String>) networkObj.getOis().readObject();
-            }
+            cm.data = (String) networkObj.getOis().readObject();
+            if (cm.code.equals("300"))
+                cm.arrayList = (ArrayList<String>) networkObj.getOis().readObject();
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
