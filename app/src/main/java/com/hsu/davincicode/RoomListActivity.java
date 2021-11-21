@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 public class RoomListActivity extends AppCompatActivity {
     private ActivityRoomListBinding binding;
-    ArrayList<Room> roomList = new ArrayList<>();
+    private RoomList roomList = RoomList.getInstance();
     RoomListAdapter roomListAdapter;
 
     private UserInfo userInfo = UserInfo.getInstance();
@@ -43,13 +43,15 @@ public class RoomListActivity extends AppCompatActivity {
         networkObj = userInfo.getNetworkObj();
         networkUtils = new NetworkUtils(networkObj);
 
+        roomList.setRoomList(new ArrayList<Room>());
+
         doReceive();
         handler = new Handler();
         networkUtils.sendChatMsg(new ChatMsg(userName, "300", "roomListRequest"));
 
         binding.tvCurUser.setText(String.format("접속중 : %s", userName));
 
-        roomListAdapter = new RoomListAdapter(roomList);
+        roomListAdapter = new RoomListAdapter(roomList.getRoomList());
         binding.recyclerViewRoomList.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerViewRoomList.setAdapter(roomListAdapter);
 
@@ -114,23 +116,23 @@ public class RoomListActivity extends AppCompatActivity {
                 while (true) {
                     ChatMsg cm;
                     cm = networkUtils.readChatMsg();
-                    Log.d("From Server", String.format("code: %s / userName: %s / data: %s / roomList: %s", cm.code, cm.UserName, cm.data, cm.roomListData));
+                    Log.d("From Server", String.format("code: %s / userName: %s / data: %s / roomList: %s", cm.code, cm.UserName, cm.data, cm.arrayList));
 
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
                             if (cm.code.equals("300")) { // 방 목록 수신
-                                for (String roomInfo : cm.roomListData) {
+                                for (String roomInfo : cm.arrayList) {
                                     String[] data = roomInfo.split("//");
-                                    roomList.add(new Room(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3])));
-                                    roomListAdapter.notifyItemInserted(roomList.size());
+                                    roomList.getRoomList().add(new Room(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3])));
+                                    roomListAdapter.notifyItemInserted(roomList.getRoomList().size());
                                 }
                             }
                             if (cm.code.equals("400")) { // 방 생성시
                                 String[] data = cm.data.split("//");
                                 Room newRoom = new Room(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]));
-                                roomList.add(newRoom);
-                                roomListAdapter.notifyItemInserted(roomList.size());
+                                roomList.getRoomList().add(newRoom);
+                                roomListAdapter.notifyItemInserted(roomList.getRoomList().size());
 
                                 if (cm.UserName.equals(userName)) { // 내가 방 생성을 요청했을 경우 나는 참가
                                     joinRoom(newRoom);
@@ -142,7 +144,7 @@ public class RoomListActivity extends AppCompatActivity {
                                 int newCurCount = newRoom.getCurCount();
                                 String roomId = data[1];
                                 int newIndex = findRoomIndexById(roomId);
-                                roomList.get(newIndex).setCurCount(newCurCount);
+                                roomList.getRoomList().get(newIndex).setCurCount(newCurCount);
                                 roomListAdapter.notifyItemChanged(newIndex);
 
                                 if (cm.UserName.equals(userName)) { // 내가 방 참가 할 경우
@@ -159,8 +161,8 @@ public class RoomListActivity extends AppCompatActivity {
 
     public int findRoomIndexById(String roomId) {
         int i;
-        for (i = 0; i < roomList.size(); i++) {
-            if (roomList.get(i).getRoomId().equals(roomId)) break;
+        for (i = 0; i < roomList.getRoomList().size(); i++) {
+            if (roomList.getRoomList().get(i).getRoomId().equals(roomId)) break;
         }
         return i;
     }
