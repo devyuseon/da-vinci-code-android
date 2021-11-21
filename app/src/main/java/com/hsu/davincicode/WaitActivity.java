@@ -51,7 +51,7 @@ public class WaitActivity extends AppCompatActivity {
 
         doReceive();
 
-        networkUtils.sendChatMsg(new ChatMsg(userName, "ROOMUSERLIST", "roomuserlist"));
+        networkUtils.sendChatMsg(new ChatMsg(userName, "ROOMUSERLIST", roomId));
 
         binding.tvCurUser.setText(String.format("접속중 : %s", userName));
         binding.tvWaitActTitle.setText(String.format("[%s] 대기실", roomName));
