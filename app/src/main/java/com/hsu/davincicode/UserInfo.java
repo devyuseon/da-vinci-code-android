@@ -3,14 +3,12 @@ package com.hsu.davincicode;
 // Singleton
 public class UserInfo {
     private String userName;
-    private NetworkObj networkObj;
     private Room myRoom;
 
     public UserInfo() {}
 
-    public void init (String userName, NetworkObj networkObj) {
+    public void init (String userName) {
         this.userName = userName;
-        this.networkObj = networkObj;
     }
 
     private static class LazyHolder {
@@ -23,10 +21,6 @@ public class UserInfo {
 
     public String getUserName() {
         return userName;
-    }
-
-    public NetworkObj getNetworkObj() {
-        return networkObj;
     }
 
     public Room getMyRoom() {

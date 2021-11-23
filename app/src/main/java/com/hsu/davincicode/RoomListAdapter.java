@@ -33,7 +33,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
         private String roomId;
 
         private UserInfo userInfo = UserInfo.getInstance();
-        private NetworkObj networkObj;
+        private NetworkObj networkObj = NetworkObj.getInstance();
         private NetworkUtils networkUtils;
         private String userName;
 
@@ -46,7 +46,6 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
             btnRequestRoomEnterance = view.findViewById(R.id.btn_request_room_enterance);
 
             userName = userInfo.getUserName();
-            networkObj = userInfo.getNetworkObj();
             networkUtils = new NetworkUtils(networkObj);
 
             btnRequestRoomEnterance.setOnClickListener(v -> {

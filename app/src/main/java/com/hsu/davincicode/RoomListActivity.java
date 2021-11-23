@@ -27,7 +27,7 @@ public class RoomListActivity extends AppCompatActivity {
     RoomListAdapter roomListAdapter;
 
     private UserInfo userInfo = UserInfo.getInstance();
-    private NetworkObj networkObj;
+    private NetworkObj networkObj = NetworkObj.getInstance();
     private NetworkUtils networkUtils;
     private String userName;
 
@@ -40,7 +40,6 @@ public class RoomListActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         userName = userInfo.getUserName();
-        networkObj = userInfo.getNetworkObj();
         networkUtils = new NetworkUtils(networkObj);
 
         doReceive();
@@ -114,13 +113,13 @@ public class RoomListActivity extends AppCompatActivity {
                 while (true) {
                     ChatMsg cm;
                     cm = networkUtils.readChatMsg();
-                    Log.d("From Server", String.format("code: %s / userName: %s / data: %s / roomList: %s", cm.code, cm.UserName, cm.data, cm.roomListData));
+                    Log.d("From Server", String.format("code: %s / userName: %s / data: %s / roomList: %s", cm.code, cm.UserName, cm.data, cm.list));
 
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
                             if (cm.code.equals("300")) { // 방 목록 수신
-                                for (String roomInfo : cm.roomListData) {
+                                for (String roomInfo : cm.list) {
                                     String[] data = roomInfo.split("//");
                                     roomList.add(new Room(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3])));
                                     roomListAdapter.notifyItemInserted(roomList.size());
@@ -132,9 +131,11 @@ public class RoomListActivity extends AppCompatActivity {
                                 roomList.add(newRoom);
                                 roomListAdapter.notifyItemInserted(roomList.size());
 
-                                if (cm.UserName.equals(userName)) { // 내가 방 생성을 요청했을 경우 나는 참가
+/*                                if (cm.UserName.equals(userName)) { // 내가 방 생성을 요청했을 경우 나는 참가
+                                    String msg = String.format("%s//%s", data[1], etPw.getText().toString());
+                                    ChatMsg obj = new ChatMsg(userName, "500", msg);
                                     joinRoom(newRoom);
-                                }
+                                }*/
                             }
                             if (cm.code.equals("500")) { // 방 참가시
                                 String[] data = cm.data.split("//");
@@ -173,6 +174,7 @@ public class RoomListActivity extends AppCompatActivity {
         bundle.putString("roomId", room.getRoomId());
         intent.putExtras(bundle);
         startActivity(intent);
+        finish();
     }
     // 뒤로가기 금지
     @Override
