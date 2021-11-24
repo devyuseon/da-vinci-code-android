@@ -54,6 +54,12 @@ public class WaitActivity extends AppCompatActivity {
         waitListAdapter = new WaitListAdapter(userList);
         binding.recyclerViewWaitUserList.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerViewWaitUserList.setAdapter(waitListAdapter);
+
+        // 로그아웃 버튼
+        binding.btnWaitLogout.setOnClickListener(v -> {
+            networkUtils.logout();
+        });
+
     }
 
     public void doReceive() {
@@ -62,7 +68,8 @@ public class WaitActivity extends AppCompatActivity {
                 while (true) {
                     ChatMsg cm;
                     cm = networkUtils.readChatMsg();
-                    Log.d("From Server", String.format("code: %s / userName: %s / data: %s / list: %s", cm.code, cm.UserName, cm.data, cm.list.toString()));
+                    if (cm != null)
+                        Log.d("From Server", String.format("code: %s / userName: %s / data: %s / list: %s", cm.code, cm.UserName, cm.data, cm.list.toString()));
 
                     handler.post(new Runnable() {
                         @Override
@@ -70,6 +77,7 @@ public class WaitActivity extends AppCompatActivity {
                             if (cm.code.matches("ROOMUSERLIST")) { // 방 목록 수신
                                 //userList.add(cm.data);
                                 //waitListAdapter.notifyItemInserted(userList.size());
+                                binding.textView3.setText(String.format("code: %s / userName: %s / data: %s / list: %s", cm.code, cm.UserName, cm.data, cm.list.toString()));
                             }
                         }
                     });
