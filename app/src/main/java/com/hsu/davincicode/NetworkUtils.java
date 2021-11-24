@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.StreamCorruptedException;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -15,7 +16,7 @@ public class NetworkUtils {
     private UserInfo userInfo = UserInfo.getInstance();
     private NetworkObj networkObj;
 
-    public NetworkUtils (NetworkObj networkObj) {
+    public NetworkUtils(NetworkObj networkObj) {
         this.networkObj = networkObj;
     }
 
@@ -52,7 +53,7 @@ public class NetworkUtils {
     }
 
     // ChatMsg 를 읽어서 Return, Java 호환성 문제로 field별로 수신해서 ChatMsg 로 만들어 Return
-    public ChatMsg readChatMsg() {
+    public ChatMsg readChatMsg(){
 
         String code = null, userName = null, data = null;
         ChatMsg cm = new ChatMsg("", "", "");
@@ -60,10 +61,12 @@ public class NetworkUtils {
             cm.code = (String) networkObj.getOis().readObject();
             cm.UserName = (String) networkObj.getOis().readObject();
             cm.data = (String) networkObj.getOis().readObject();
-            if (cm.code.matches("300")) {
+            if (cm.code.matches("300") || cm.code.matches("ROOMUSERLIST")) {
                 cm.list.clear();
                 cm.list = (ArrayList<String>) networkObj.getOis().readObject();
             }
+        } catch (StreamCorruptedException e) {
+            Log.w("From Server Error", e);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

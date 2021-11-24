@@ -70,9 +70,18 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_waitUserList"
         android:layout_width="409dp"
-        android:layout_height="654dp"
+        android:layout_height="0dp"
         android:layout_marginTop="1dp"
         app:layout_constraintTop_toBottomOf="@+id/tv_wait_act_title"
         tools:layout_editor_absoluteX="1dp" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

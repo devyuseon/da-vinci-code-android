@@ -147,6 +147,7 @@ public class RoomListActivity extends AppCompatActivity {
                                 roomListAdapter.notifyItemChanged(newIndex);
 
                                 if (cm.UserName.equals(userName)) { // 내가 방 참가 할 경우
+                                    ChatMsg cm = new ChatMsg(userName, "ROOMUSERLIST", roomId);
                                     joinRoom(newRoom);
                                 }
                             }
