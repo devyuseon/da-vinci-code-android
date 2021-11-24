@@ -48,15 +48,19 @@ public class LoginActivity extends AppCompatActivity {
                         socket = new Socket(ip_addr, port_no);
                         oos = new ObjectOutputStream(socket.getOutputStream());
                         ois = new ObjectInputStream(socket.getInputStream());
-                        networkObj = new NetworkObj(socket, ois, oos);
-                        networkUtils = new NetworkUtils(networkObj);
 
-                        // 싱글턴인 UserInfo 인스턴스
+                        // 싱글턴인 NetworkObj 인스턴스 초기화
+                        NetworkObj networkObj = NetworkObj.getInstance();
+                        networkObj.init(socket, ois, oos);
+
+                        // 싱글턴인 UserInfo 인스턴스 초기화
                         UserInfo userInfo = UserInfo.getInstance();
-                        userInfo.init(userName, networkObj);
+                        userInfo.init(userName);
 
                         // login 정보 서버에 전달
                         ChatMsg obj = new ChatMsg(userName, "100", "Hello");
+
+                        networkUtils = new NetworkUtils(networkObj);
                         networkUtils.sendChatMsg(obj);
 
                         //startMainActivity();
@@ -72,8 +76,10 @@ public class LoginActivity extends AppCompatActivity {
 
     public void startMainActivity() {
         startActivity(new Intent(this, MainActivity.class));
+        finish();
     }
     public void startRommListActivity() {
         startActivity(new Intent(this, RoomListActivity.class));
+        finish();
     }
 }

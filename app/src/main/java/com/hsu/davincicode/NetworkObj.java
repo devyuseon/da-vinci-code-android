@@ -9,10 +9,20 @@ public class NetworkObj {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
 
-    public NetworkObj(Socket socket, ObjectInputStream ois, ObjectOutputStream oos) {
+    public NetworkObj() {}
+
+    public void init(Socket socket, ObjectInputStream ois, ObjectOutputStream oos) {
         this.socket = socket;
         this.ois = ois;
         this.oos = oos;
+    }
+
+    private static class LazyHolder {
+        public static final NetworkObj uniqueInstance = new NetworkObj();
+    }
+
+    public static NetworkObj getInstance() {
+        return NetworkObj.LazyHolder.uniqueInstance;
     }
 
     public Socket getSocket() {

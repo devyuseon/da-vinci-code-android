@@ -12,8 +12,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DaVinciCode">
         <activity
-            android:name=".RoomListActivity"
-            android:exported="true" />
+            android:name=".RoomListActivity">
+        </activity>
         <activity
             android:name=".WaitActivity"
             android:exported="true" />
@@ -26,6 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".WaitActivity"></activity>
         <activity
             android:name=".MainActivity"
             android:exported="true"></activity>

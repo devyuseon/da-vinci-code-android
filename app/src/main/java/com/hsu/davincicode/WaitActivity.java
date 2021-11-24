@@ -19,14 +19,14 @@ public class WaitActivity extends AppCompatActivity {
     private String roomName;
 
     private UserInfo userInfo = UserInfo.getInstance();
-    private NetworkObj networkObj;
+    private NetworkObj networkObj = NetworkObj.getInstance();
     private NetworkUtils networkUtils;
     private String userName;
 
-    private Handler handler; // 스레드에서 UI 작업하기 위한 핸들러
+    private WaitListAdapter waitListAdapter;
+    private ArrayList<String> userList = new ArrayList<>();
 
-    private UserListAdapter userListAdapter;
-    private ArrayList<String> userList = new ArrayList<String>();
+    private Handler handler; // 스레드에서 UI 작업하기 위한 핸들러
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,38 +42,35 @@ public class WaitActivity extends AppCompatActivity {
         handler = new Handler();
 
         userName = userInfo.getUserName();
-        networkObj = userInfo.getNetworkObj();
         networkUtils = new NetworkUtils(networkObj);
 
-        userListAdapter = new UserListAdapter(userList);
-        binding.recyclerviewUserlist.setLayoutManager(new LinearLayoutManager(this));
-        binding.recyclerviewUserlist.setAdapter(userListAdapter);
-
         doReceive();
-
-        networkUtils.sendChatMsg(new ChatMsg(userName, "ROOMUSERLIST", roomId));
+        ChatMsg cm = new ChatMsg(userName, "ROOMUSERLIST", roomId);
+        networkUtils.sendChatMsg(cm);
 
         binding.tvCurUser.setText(String.format("접속중 : %s", userName));
         binding.tvWaitActTitle.setText(String.format("[%s] 대기실", roomName));
 
+        waitListAdapter = new WaitListAdapter(userList);
+        binding.recyclerViewWaitUserList.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerViewWaitUserList.setAdapter(waitListAdapter);
     }
 
-    // Server Message 수신
     public void doReceive() {
         new Thread() {
             public void run() {
                 while (true) {
                     ChatMsg cm;
                     cm = networkUtils.readChatMsg();
-                    Log.d("From Server", String.format("code: %s / userName: %s / data: %s / roomList: %s", cm.code, cm.UserName, cm.data, cm.arrayList));
+                    Log.d("From Server", String.format("code: %s / userName: %s / data: %s / list: %s", cm.code, cm.UserName, cm.data, cm.list.toString()));
 
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            if (cm.code.equals("ROOMUSERLIST")) { // 유저 목록 수신
-                                userList = cm.arrayList;
+                            if (cm.code.matches("ROOMUSERLIST")) { // 방 목록 수신
+                                //userList.add(cm.data);
+                                //waitListAdapter.notifyItemInserted(userList.size());
                             }
-
                         }
                     });
 
@@ -81,5 +78,4 @@ public class WaitActivity extends AppCompatActivity {
             }
         }.start();
     }
-
 }

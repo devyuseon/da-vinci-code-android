@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler handler; // 스레드에서 UI 작업하기 위한 핸들러
 
     private UserInfo userInfo = UserInfo.getInstance();
-    private NetworkObj networkObj;
+    private NetworkObj networkObj = NetworkObj.getInstance();
     private NetworkUtils networkUtils;
     private String userName;
 
@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
         handler = new Handler();
 
         userName = userInfo.getUserName();
-        networkObj = userInfo.getNetworkObj();
         networkUtils = new NetworkUtils(networkObj);
 
         binding.btnLogout.setOnClickListener(v -> {
