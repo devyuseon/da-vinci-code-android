@@ -39,7 +39,6 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
 
         public ViewHolder(View view) {
             super(view);
-            // Define click listener for the ViewHolder's View
 
             tvRoomName = view.findViewById(R.id.tv_room_name);
             tvMaxCount = view.findViewById(R.id.tv_max_count);
@@ -61,7 +60,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
                             .setNegativeButton("취소", (dialog, which) -> dialog.dismiss())
                             .setPositiveButton("확인", (dialog, which) -> {
                                 String msg = String.format("%s//%s", roomId, etPw.getText().toString());
-                                ChatMsg obj = new ChatMsg(userName, "500", msg);
+                                ChatMsg obj = new ChatMsg(userName, "ROOMIN", msg);
                                 networkUtils.sendChatMsg(obj); // 서버로 msg 전송
                                 dialog.dismiss();
                             }).show();
@@ -78,20 +77,14 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
         public TextView getTvMaxCount() {
             return tvMaxCount;
         }
-
-        public Button getBtnRequestRoomEnterance() {
-            return btnRequestRoomEnterance;
-        }
     }
 
     public RoomListAdapter(ArrayList<Room> roomList) {
         this.roomList = roomList;
     }
 
-    // Create new views (invoked by the layout manager)
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        // Create a new view, which defines the UI of the list item
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.item_roomlist, viewGroup, false);
 
@@ -105,7 +98,6 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
         holder.getTvMaxCount().setText(String.format("%s/%s", roomList.get(position).getCurCount(), roomList.get(position).getMaxCount()));
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return roomList.size();

@@ -1,5 +1,6 @@
 package com.hsu.davincicode;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.lifecycle.ViewModelProvider;
@@ -7,11 +8,13 @@ import androidx.lifecycle.ViewModelProvider;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.io.StreamCorruptedException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
-public class NetworkUtils {
+public class NetworkUtils implements Serializable {
 
     private UserInfo userInfo = UserInfo.getInstance();
     private NetworkObj networkObj;
@@ -24,7 +27,7 @@ public class NetworkUtils {
         new Thread() {
             public void run() {
                 try {
-                    ChatMsg cm = new ChatMsg(userInfo.getUserName(), "200", "bye");
+                    ChatMsg cm = new ChatMsg(userInfo.getUserName(), "LOGOUT", "bye");
                     sendChatMsg(cm);
                     networkObj.getOos().close();
                     networkObj.getOis().close();
@@ -39,12 +42,12 @@ public class NetworkUtils {
     public void sendChatMsg(ChatMsg cm) {
         new Thread() {
             public void run() {
-                // Java 호환성을 위해 각각의 Field를 따로따로 보낸다.
                 try {
                     networkObj.getOos().writeObject(cm.code);
                     networkObj.getOos().writeObject(cm.UserName);
                     networkObj.getOos().writeObject(cm.data);
-                    //oos.flush();
+
+                    Log.d("ToServer", String.format("code: %s / userName: %s / data: %s / list: %s", cm.code, cm.UserName, cm.data, cm.list.toString()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -52,29 +55,45 @@ public class NetworkUtils {
         }.start();
     }
 
-    // ChatMsg 를 읽어서 Return, Java 호환성 문제로 field별로 수신해서 ChatMsg 로 만들어 Return
-    public ChatMsg readChatMsg(){
-
-        String code = null, userName = null, data = null;
+    public ChatMsg readChatMsg() {
         ChatMsg cm = new ChatMsg("", "", "");
+
+        ReadChatMsgTask readChatMsgTask = new ReadChatMsgTask();
+
         try {
-            cm.code = (String) networkObj.getOis().readObject();
-            cm.UserName = (String) networkObj.getOis().readObject();
-            cm.data = (String) networkObj.getOis().readObject();
-            if (cm.code.matches("300") || cm.code.matches("ROOMUSERLIST")) {
-                cm.list.clear();
-                cm.list = (ArrayList<String>) networkObj.getOis().readObject();
-            }
-        } catch (StreamCorruptedException e) {
-            Log.w("From Server Error", e);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            //logout();
-            Log.w("From Server with Error", e);
-            e.printStackTrace();
+            cm = readChatMsgTask.execute().get();
+        } catch (ExecutionException | InterruptedException e) {
         }
+
         return cm;
     }
 
+    // 비동기처리. 백그라운드에서 동작함
+    class ReadChatMsgTask extends AsyncTask<String, String, ChatMsg> {
+
+        @Override
+        protected ChatMsg doInBackground(String... strings) {
+            ChatMsg cm = new ChatMsg("", "", "");
+            try {
+                cm.code = (String) networkObj.getOis().readObject();
+                cm.UserName = (String) networkObj.getOis().readObject();
+                cm.data = (String) networkObj.getOis().readObject();
+                if (cm.code.matches("ROOMLIST")) {
+                    cm.list.clear();
+                    cm.list = (ArrayList<String>) networkObj.getOis().readObject();
+                }
+            } catch (StreamCorruptedException e) {
+                Log.w("ServerError", e);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                logout();
+                Log.w("ServerError", e);
+                e.printStackTrace();
+            }
+            return cm;
+        }
+    }
+
 }
+

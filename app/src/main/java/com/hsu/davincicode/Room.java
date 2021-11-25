@@ -11,30 +11,18 @@ class Room {
         this.roomId = roomId;
         this.maxCount = maxCount;
         this.curCount = curCount;
-        }
+    }
 
     public String getRoomName() {
         return roomName;
-    }
-
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
     }
 
     public String getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(String roomId) {
-        this.roomId = roomId;
-    }
-
     public int getMaxCount() {
         return maxCount;
-    }
-
-    public void setMaxCount(int maxCount) {
-        this.maxCount = maxCount;
     }
 
     public int getCurCount() {

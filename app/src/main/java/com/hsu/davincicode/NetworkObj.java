@@ -2,9 +2,10 @@ package com.hsu.davincicode;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 
-public class NetworkObj {
+public class NetworkObj implements Serializable {
     private Socket socket;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;

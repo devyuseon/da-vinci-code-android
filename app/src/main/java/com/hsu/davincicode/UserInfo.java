@@ -23,10 +23,6 @@ public class UserInfo {
         return userName;
     }
 
-    public Room getMyRoom() {
-        return myRoom;
-    }
-
     public void setMyRoom(Room myRoom) {
         this.myRoom = myRoom;
     }

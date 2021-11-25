@@ -58,13 +58,12 @@ public class LoginActivity extends AppCompatActivity {
                         userInfo.init(userName);
 
                         // login 정보 서버에 전달
-                        ChatMsg obj = new ChatMsg(userName, "100", "Hello");
-
+                        ChatMsg obj = new ChatMsg(userName, "LOGIN", "Hello");
                         networkUtils = new NetworkUtils(networkObj);
                         networkUtils.sendChatMsg(obj);
 
-                        //startMainActivity();
-                        startRommListActivity();
+                        // 방 목록 액티비티로 입장
+                        startRoomListActivity();
 
                     } catch (IOException e) {
                         Log.w("Login", e);
@@ -74,11 +73,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void startMainActivity() {
-        startActivity(new Intent(this, MainActivity.class));
-        finish();
-    }
-    public void startRommListActivity() {
+    public void startRoomListActivity() {
         startActivity(new Intent(this, RoomListActivity.class));
         finish();
     }

@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,8 +15,6 @@ import android.widget.EditText;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.hsu.davincicode.databinding.ActivityRoomListBinding;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -33,6 +30,8 @@ public class RoomListActivity extends AppCompatActivity {
 
     private Handler handler; // 스레드에서 UI 작업하기 위한 핸들러
 
+    private Thread th;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         binding = ActivityRoomListBinding.inflate(getLayoutInflater());
@@ -42,22 +41,25 @@ public class RoomListActivity extends AppCompatActivity {
         userName = userInfo.getUserName();
         networkUtils = new NetworkUtils(networkObj);
 
-        doReceive();
+        doReceive(); // 서버에서 받는 스레드 실행
         handler = new Handler();
-        networkUtils.sendChatMsg(new ChatMsg(userName, "300", "roomListRequest"));
+        networkUtils.sendChatMsg(new ChatMsg(userName, "ROOMLIST", "roomListRequest"));
 
-        binding.tvCurUser.setText(String.format("접속중 : %s", userName));
+        binding.tvCurUser.setText(String.format("💚 %s", userName)); // 접속중인 유저 표시
 
+        // 리사이클러뷰 세팅
         roomListAdapter = new RoomListAdapter(roomList);
         binding.recyclerViewRoomList.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerViewRoomList.setAdapter(roomListAdapter);
 
+        // 로그아웃
         binding.btnRoomlistLogout.setOnClickListener(v -> {
             networkUtils.logout();
             startLoginActivity();
             finish();
         });
 
+        // 방 생성하기 다이얼로그 실행
         binding.btnRoomlistCreateRoom.setOnClickListener(v -> creatRoomDialog());
     }
 
@@ -93,7 +95,7 @@ public class RoomListActivity extends AppCompatActivity {
 
             if (Integer.parseInt(roomCount[0]) <= 4 && Integer.parseInt(roomCount[0]) > 1) {
                 String msg = String.format("%s//%s//%s", roomName[0], roomCount[0], roomPw[0]);
-                ChatMsg obj = new ChatMsg(userName, "400", msg);
+                ChatMsg obj = new ChatMsg(userName, "ROOMCREATE", msg);
                 networkUtils.sendChatMsg(obj); // 서버로 msg 전송
 
                 alertDialog.dismiss();
@@ -108,55 +110,48 @@ public class RoomListActivity extends AppCompatActivity {
 
     // Server Message 수신
     public void doReceive() {
-        new Thread() {
+        th = new Thread() {
             public void run() {
                 while (true) {
+
+                    if (th.isInterrupted()) break;
+
                     ChatMsg cm;
                     cm = networkUtils.readChatMsg();
-                    Log.d("From Server", String.format("code: %s / userName: %s / data: %s / roomList: %s", cm.code, cm.UserName, cm.data, cm.list));
+                    Log.d("FromServer[RoomListActivity]", String.format("code: %s / userName: %s / data: %s / list: %s", cm.code, cm.UserName, cm.data, cm.list));
 
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (cm.code.equals("300")) { // 방 목록 수신
-                                for (String roomInfo : cm.list) {
-                                    String[] data = roomInfo.split("//");
-                                    roomList.add(new Room(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3])));
-                                    roomListAdapter.notifyItemInserted(roomList.size());
-                                }
-                            }
-                            if (cm.code.equals("400")) { // 방 생성시
-                                String[] data = cm.data.split("//");
-                                Room newRoom = new Room(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]));
-                                roomList.add(newRoom);
+                    handler.post(() -> {
+                        if (cm.code.equals("ROOMLIST")) { // 방 목록 수신
+                            for (String roomInfo : cm.list) {
+                                String[] data = roomInfo.split("//");
+                                roomList.add(new Room(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3])));
                                 roomListAdapter.notifyItemInserted(roomList.size());
-
-/*                                if (cm.UserName.equals(userName)) { // 내가 방 생성을 요청했을 경우 나는 참가
-                                    String msg = String.format("%s//%s", data[1], etPw.getText().toString());
-                                    ChatMsg obj = new ChatMsg(userName, "500", msg);
-                                    joinRoom(newRoom);
-                                }*/
                             }
-                            if (cm.code.equals("500")) { // 방 참가시
-                                String[] data = cm.data.split("//");
-                                Room newRoom = new Room(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]));
-                                int newCurCount = newRoom.getCurCount();
-                                String roomId = data[1];
-                                int newIndex = findRoomIndexById(roomId);
-                                roomList.get(newIndex).setCurCount(newCurCount);
-                                roomListAdapter.notifyItemChanged(newIndex);
+                        }
+                        if (cm.code.equals("ROOMCREATE")) { // 방 생성시 리사이클러뷰 갱신
+                            String[] data = cm.data.split("//");
+                            Room newRoom = new Room(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]));
+                            roomList.add(newRoom);
+                            roomListAdapter.notifyItemInserted(roomList.size());
+                        }
+                        if (cm.code.equals("ROOMIN")) { // 방 참가시 리사이클러뷰 갱신
+                            String[] data = cm.data.split("//");
+                            Room newRoom = new Room(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]));
+                            int newCurCount = newRoom.getCurCount();
+                            String roomId = data[1];
+                            int newIndex = findRoomIndexById(roomId);
+                            roomList.get(newIndex).setCurCount(newCurCount);
+                            roomListAdapter.notifyItemChanged(newIndex);
 
-                                if (cm.UserName.equals(userName)) { // 내가 방 참가 할 경우
-                                    ChatMsg cm = new ChatMsg(userName, "ROOMUSERLIST", roomId);
-                                    joinRoom(newRoom);
-                                }
+                            if (cm.UserName.equals(userName)) { // 내가 방 참가 할 경우
+                                joinRoom(newRoom);
                             }
                         }
                     });
-
                 }
             }
-        }.start();
+        };
+        th.start();
     }
 
     public int findRoomIndexById(String roomId) {
@@ -174,9 +169,11 @@ public class RoomListActivity extends AppCompatActivity {
         bundle.putString("roomName", room.getRoomName());
         bundle.putString("roomId", room.getRoomId());
         intent.putExtras(bundle);
+        th.interrupt(); // RoomListActivity의 Doreceive 스레드 종료
         startActivity(intent);
         finish();
     }
+
     // 뒤로가기 금지
     @Override
     public void onBackPressed() {
