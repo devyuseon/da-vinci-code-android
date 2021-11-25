@@ -31,6 +31,7 @@ public class RoomListActivity extends AppCompatActivity {
     private Handler handler; // 스레드에서 UI 작업하기 위한 핸들러
 
     private Thread th;
+    private Boolean isDoReceiveRunning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +113,8 @@ public class RoomListActivity extends AppCompatActivity {
     public void doReceive() {
         th = new Thread() {
             public void run() {
-                while (true) {
+                isDoReceiveRunning = true;
+                while (isDoReceiveRunning) {
 
                     if (th.isInterrupted()) break;
 
@@ -169,7 +171,7 @@ public class RoomListActivity extends AppCompatActivity {
         bundle.putString("roomName", room.getRoomName());
         bundle.putString("roomId", room.getRoomId());
         intent.putExtras(bundle);
-        th.interrupt(); // RoomListActivity의 Doreceive 스레드 종료
+        isDoReceiveRunning = false; // RoomListActivity의 Doreceive 스레드 종료
         startActivity(intent);
         finish();
     }
