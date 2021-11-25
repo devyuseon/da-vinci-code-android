@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.hsu.davincicode.databinding.ActivityWaitBinding;
 
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ public class WaitActivity extends AppCompatActivity {
         binding.tvCurUser.setText(String.format("💚 %s", userName));
         binding.tvWaitActTitle.setText(String.format("【%s】 대기실", roomName));
 
+        // userList 리사이클러뷰
         waitListAdapter = new WaitListAdapter(userList);
         binding.recyclerViewWaitUserList.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerViewWaitUserList.setAdapter(waitListAdapter);
@@ -71,6 +73,20 @@ public class WaitActivity extends AppCompatActivity {
             networkUtils.sendChatMsg(cm2);
         });
 
+        // 게임 시작
+        binding.btnGameStart.setOnClickListener(v -> {
+            ChatMsg cm1 = new ChatMsg(userName, "GAMESTART", roomId);
+            networkUtils.sendChatMsg(cm1);
+        });
+
+    }
+
+    private void gameStart() {
+        Intent gameIntent = new Intent(this, GameActivity.class);
+        gameIntent.putExtra("roomId", roomId);
+        gameIntent.putExtra("roomName", roomName);
+        startActivity(gameIntent);
+        finish();
     }
 
     public void doReceive() {
@@ -83,8 +99,23 @@ public class WaitActivity extends AppCompatActivity {
                         Log.d("FromServer[WaitActivity]", String.format("code: %s / userName: %s / data: %s / list: %s", cm.code, cm.UserName, cm.data, cm.list.toString()));
 
                     handler.post(() -> {
-                        if (cm.code.matches("ROOMUSERLIST")) { // 방 목록 수신
-                            binding.textView3.setText(String.format("code: %s / userName: %s / data: %s / list: %s", cm.code, cm.UserName, cm.data, cm.list.toString()));
+                        if (cm.code.matches("ROOMUSERLIST") && cm.UserName.equals(userName)) { // 방 목록 수신 ( 내 요청일 경우에만 )
+                            // 서버에서 전송을 두번 하므로 두번 반영 안되도록 설정
+                            if (cm.list.size() - userList.size() > 0) {
+                                userList.addAll(cm.list);
+                                waitListAdapter.notifyDataSetChanged();
+                            }
+                        }
+                        if (cm.code.matches("ROOMIN")) {
+                            String[] data = cm.data.split("//");
+                            if (data[1].trim().equals(roomId)) { // 내 방 roomIn 정보일때
+                                userList.add(cm.UserName);
+                                waitListAdapter.notifyDataSetChanged();
+                                Snackbar.make(binding.getRoot(), cm.UserName + " 님이 입장하셨습니다.", Snackbar.LENGTH_LONG).show();
+                            }
+                        }
+                        if (cm.code.matches("GAMESTART") && roomId.equals(cm.data.trim())) {
+                            gameStart();
                         }
                     });
                 }

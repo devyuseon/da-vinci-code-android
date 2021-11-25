@@ -12,8 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DaVinciCode">
         <activity
-            android:name=".RoomListActivity">
-        </activity>
+            android:name=".GameActivity"
+            android:exported="true"
+            android:screenOrientation="landscape"/>
+        <activity android:name=".RoomListActivity"></activity>
         <activity
             android:name=".WaitActivity"
             android:exported="true" />
