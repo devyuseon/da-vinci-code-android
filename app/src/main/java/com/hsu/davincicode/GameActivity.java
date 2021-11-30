@@ -2,6 +2,7 @@ package com.hsu.davincicode;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -33,7 +34,7 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(binding.getRoot());
 
-        if(getIntent().hasExtra("roodId") && getIntent().hasExtra("roomName")) {
+        if (getIntent().hasExtra("roodId") && getIntent().hasExtra("roomName")) {
             roomId = getIntent().getStringExtra("roomId");
             roomName = getIntent().getStringExtra("roomName");
         }
