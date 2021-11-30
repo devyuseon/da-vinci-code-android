@@ -2,24 +2,29 @@ package com.hsu.davincicode;
 
 import android.os.AsyncTask;
 import android.util.Log;
-
-import androidx.lifecycle.ViewModelProvider;
+import android.view.View;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.StreamCorruptedException;
-import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
+
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class NetworkUtils implements Serializable {
 
     private UserInfo userInfo = UserInfo.getInstance();
     private NetworkObj networkObj;
+    boolean isCancel = false;
 
     public NetworkUtils(NetworkObj networkObj) {
         this.networkObj = networkObj;
@@ -42,19 +47,8 @@ public class NetworkUtils implements Serializable {
     }
 
     public void sendChatMsg(ChatMsg cm) {
-        new Thread() {
-            public void run() {
-                try {
-                    networkObj.getOos().writeObject(cm.code);
-                    networkObj.getOos().writeObject(cm.UserName);
-                    networkObj.getOos().writeObject(cm.data);
-
-                    Log.d("ToServer", String.format("code: %s / userName: %s / data: %s / list: %s", cm.code, cm.UserName, cm.data, cm.list.toString()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
+        SendChatMsgTask sendChatMsgTask = new SendChatMsgTask();
+        sendChatMsgTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, cm);
     }
 
     public ChatMsg readChatMsg() {
@@ -70,7 +64,33 @@ public class NetworkUtils implements Serializable {
         return cm;
     }
 
-    // 비동기처리. 백그라운드에서 동작함
+    class SendChatMsgTask extends AsyncTask<ChatMsg, String, Void> {
+
+        private int count = 0;
+
+        @Override
+        protected Void doInBackground(ChatMsg... param) {
+            while (count == 0) {
+                ChatMsg cm = param[0];
+                try {
+                    networkObj.getOos().writeObject(cm.code);
+                    networkObj.getOos().writeObject(cm.UserName);
+                    networkObj.getOos().writeObject(cm.data);
+                    Log.d("ToServer", String.format("code: %s / userName: %s / data: %s / list: %s", cm.code, cm.UserName, cm.data, cm.list.toString()));
+                    count++;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onCancelled() {
+            System.out.println("task cancelled!!!!!!!!!!");
+        }
+    }
+
     class ReadChatMsgTask extends AsyncTask<String, String, ChatMsg> {
 
         @Override
@@ -80,11 +100,12 @@ public class NetworkUtils implements Serializable {
                 cm.code = (String) networkObj.getOis().readObject();
                 cm.UserName = (String) networkObj.getOis().readObject();
                 cm.data = (String) networkObj.getOis().readObject();
-                if (cm.code.matches("ROOMLIST") || cm.code.matches("ROOMUSERLIST")) {
+                if (cm.code.matches("ROOMLIST") || cm.code.matches("ROOMUSERLIST") || cm.code.matches("READY")) {
                     cm.list.clear();
                     cm.list = (ArrayList<String>) networkObj.getOis().readObject();
                 }
                 if (cm.code.matches("READY")) {
+                    cm.cards.clear();
                     cm.cards = (Map<String, Vector<Card>>) networkObj.getOis().readObject();
                 }
             } catch (StreamCorruptedException e) {

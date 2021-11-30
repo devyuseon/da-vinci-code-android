@@ -32,6 +32,8 @@ public class WaitActivity extends AppCompatActivity {
 
     private Handler handler; // 스레드에서 UI 작업하기 위한 핸들러
 
+    private Boolean isDoReceiveRunning;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         binding = ActivityWaitBinding.inflate(getLayoutInflater());
@@ -48,6 +50,7 @@ public class WaitActivity extends AppCompatActivity {
         userName = userInfo.getUserName();
         networkUtils = new NetworkUtils(networkObj);
 
+        isDoReceiveRunning = true;
         doReceive();
         ChatMsg cm = new ChatMsg(userName, "ROOMUSERLIST", roomId);
         networkUtils.sendChatMsg(cm);
@@ -85,6 +88,7 @@ public class WaitActivity extends AppCompatActivity {
         Intent gameIntent = new Intent(this, GameActivity.class);
         gameIntent.putExtra("roomId", roomId);
         gameIntent.putExtra("roomName", roomName);
+        isDoReceiveRunning = false;
         startActivity(gameIntent);
         finish();
     }
@@ -92,7 +96,7 @@ public class WaitActivity extends AppCompatActivity {
     public void doReceive() {
         new Thread() {
             public void run() {
-                while (true) {
+                while (isDoReceiveRunning) {
                     ChatMsg cm;
                     cm = networkUtils.readChatMsg();
                     if (cm != null)
