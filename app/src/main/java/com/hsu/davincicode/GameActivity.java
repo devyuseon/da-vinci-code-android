@@ -2,6 +2,7 @@ package com.hsu.davincicode;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -31,6 +32,11 @@ public class GameActivity extends AppCompatActivity {
         binding = ActivityGameBinding.inflate(getLayoutInflater());
         super.onCreate(savedInstanceState);
         setContentView(binding.getRoot());
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        roomId = bundle.getString("roomId");
+        roomName = bundle.getString("roomName");
 
         handler = new Handler();
 
