@@ -43,12 +43,16 @@ public class GameActivity extends AppCompatActivity {
         userName = userInfo.getUserName();
         networkUtils = new NetworkUtils(networkObj);
 
+        if (getIntent().hasExtra("roomId") && getIntent().hasExtra("roomName")) {
+            roomId = getIntent().getStringExtra("roomId");
+            roomName = getIntent().getStringExtra("roomName");
+        }
+
         doReceive();
         ChatMsg cm = new ChatMsg(userName, "ROOMUSERLIST", roomId);
         networkUtils.sendChatMsg(cm);
 
         binding.btnReady.setOnClickListener(v -> {
-            binding.btnReady.setVisibility(View.GONE);
             ChatMsg cm1 = new ChatMsg(userName, "READY", roomId);
             networkUtils.sendChatMsg(cm1);
         });
@@ -68,7 +72,7 @@ public class GameActivity extends AppCompatActivity {
 
                         }
                         if (cm.code.matches("READY")) {
-
+                            binding.btnReady.setVisibility(View.GONE);
                         }
                     });
                 }

@@ -29,8 +29,9 @@
         android:id="@+id/recyclerView_player1"
         android:layout_width="511dp"
         android:layout_height="60dp"
-        android:layout_marginStart="4dp"
+        android:layout_marginEnd="76dp"
         android:scaleY="-1"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/iv_player1"
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/recycler_view_item" />
@@ -40,9 +41,12 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:scaleY="-1"
-        app:srcCompat="@drawable/player_pink"
-        tools:layout_editor_absoluteX="86dp"
-        tools:layout_editor_absoluteY="0dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/player_pink" />
+
 
     <Button
         android:id="@+id/btn_ready"
@@ -50,7 +54,18 @@
         android:layout_height="wrap_content"
         android:text="ready"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/iv_player2"
-        app:layout_constraintStart_toEndOf="@+id/iv_player3"
-        app:layout_constraintTop_toBottomOf="@+id/recyclerView_player1" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_player1_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleY="-1"
+        android:text="name"
+        app:layout_constraintEnd_toStartOf="@+id/recyclerView_player1"
+        app:layout_constraintStart_toStartOf="@+id/iv_player1"
+        app:layout_constraintTop_toTopOf="@+id/iv_player1" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
