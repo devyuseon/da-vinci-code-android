@@ -12,6 +12,8 @@ import java.io.Serializable;
 import java.io.StreamCorruptedException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
 public class NetworkUtils implements Serializable {
@@ -81,6 +83,9 @@ public class NetworkUtils implements Serializable {
                 if (cm.code.matches("ROOMLIST") || cm.code.matches("ROOMUSERLIST")) {
                     cm.list.clear();
                     cm.list = (ArrayList<String>) networkObj.getOis().readObject();
+                }
+                if (cm.code.matches("READY")) {
+                    cm.cards = (Map<String, Vector<Card>>) networkObj.getOis().readObject();
                 }
             } catch (StreamCorruptedException e) {
                 Log.w("ServerError", e);

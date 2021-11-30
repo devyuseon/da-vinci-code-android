@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.hsu.davincicode.databinding.ActivityGameBinding;
@@ -32,6 +33,11 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(binding.getRoot());
 
+        if(getIntent().hasExtra("roodId") && getIntent().hasExtra("roomName")) {
+            roomId = getIntent().getStringExtra("roomId");
+            roomName = getIntent().getStringExtra("roomName");
+        }
+
         handler = new Handler();
 
         userName = userInfo.getUserName();
@@ -40,6 +46,12 @@ public class GameActivity extends AppCompatActivity {
         doReceive();
         ChatMsg cm = new ChatMsg(userName, "ROOMUSERLIST", roomId);
         networkUtils.sendChatMsg(cm);
+
+        binding.btnReady.setOnClickListener(v -> {
+            binding.btnReady.setVisibility(View.GONE);
+            ChatMsg cm1 = new ChatMsg(userName, "READY", roomId);
+            networkUtils.sendChatMsg(cm1);
+        });
     }
 
     public void doReceive() {
@@ -49,10 +61,13 @@ public class GameActivity extends AppCompatActivity {
                     ChatMsg cm;
                     cm = networkUtils.readChatMsg();
                     if (cm != null)
-                        Log.d("FromServer[GameActivity]", String.format("code: %s / userName: %s / data: %s / list: %s", cm.code, cm.UserName, cm.data, cm.list.toString()));
+                        Log.d("FromServer[GameActivity]", String.format("code: %s / userName: %s / data: %s / list: %s / cards: %s", cm.code, cm.UserName, cm.data, cm.list.toString(), cm.cards.toString()));
 
                     handler.post(() -> {
                         if (cm.code.matches("ROOMUSERLIST") && cm.UserName.equals(userName)) { // 방 목록 수신 ( 내 요청일 경우에만 )
+
+                        }
+                        if (cm.code.matches("READY")) {
 
                         }
                     });

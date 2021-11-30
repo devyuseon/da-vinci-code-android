@@ -6,14 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".GameActivity">
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        tools:layout_editor_absoluteX="337dp"
-        tools:layout_editor_absoluteY="196dp" />
-
     <ImageView
         android:id="@+id/iv_player3"
         android:layout_width="60dp"
@@ -51,4 +43,14 @@
         app:srcCompat="@drawable/player_pink"
         tools:layout_editor_absoluteX="86dp"
         tools:layout_editor_absoluteY="0dp" />
+
+    <Button
+        android:id="@+id/btn_ready"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ready"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/iv_player2"
+        app:layout_constraintStart_toEndOf="@+id/iv_player3"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerView_player1" />
 </androidx.constraintlayout.widget.ConstraintLayout>
