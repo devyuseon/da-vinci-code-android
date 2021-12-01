@@ -7,6 +7,18 @@
     tools:context=".GameActivity">
 
     <ImageView
+        android:id="@+id/iv_player1"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleY="-1"
+        android:src="@drawable/player_pink"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
         android:id="@+id/iv_player3"
         android:layout_width="60dp"
         android:layout_height="60dp"
@@ -15,7 +27,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/player_blue" />
+        android:src="@drawable/player_blue" />
 
     <ImageView
         android:id="@+id/iv_player2"
@@ -27,48 +39,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.498"
-        app:srcCompat="@drawable/player_yellow" />
+        android:src="@drawable/player_yellow" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView_player1"
-        android:layout_width="511dp"
-        android:layout_height="60dp"
-        android:layout_marginEnd="76dp"
-        android:scaleY="-1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/iv_player1"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/recycler_view_item" />
-
-    <ImageView
-        android:id="@+id/iv_player1"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:scaleY="-1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.15"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/player_pink" />
-
-
-    <Button
-        android:id="@+id/btn_ready"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="ready"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_player1_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:scaleX="-1"
         android:scaleY="-1"
         android:text="name"
-        app:layout_constraintEnd_toStartOf="@+id/recyclerView_player1"
+        android:textAlignment="center"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/iv_player1"
         app:layout_constraintStart_toStartOf="@+id/iv_player1"
         app:layout_constraintTop_toTopOf="@+id/iv_player1" />
 
@@ -96,5 +79,26 @@
         app:layout_constraintBottom_toBottomOf="@+id/iv_player3"
         app:layout_constraintStart_toStartOf="@+id/iv_player3"
         app:layout_constraintTop_toTopOf="@+id/iv_player3" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView_player1"
+        android:layout_width="511dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="76dp"
+        android:scaleY="-1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/iv_player1"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/recycler_view_item" />
+
+    <Button
+        android:id="@+id/btn_ready"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ready"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
