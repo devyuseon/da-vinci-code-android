@@ -10,7 +10,6 @@
         android:id="@+id/iv_player1"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:scaleY="-1"
         android:src="@drawable/player_pink"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
@@ -22,46 +21,45 @@
         android:id="@+id/iv_player3"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:rotation="90"
+        android:src="@drawable/player_blue"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/player_blue" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/iv_player2"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:rotation="-90"
+        android:src="@drawable/player_yellow"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.498"
-        android:src="@drawable/player_yellow" />
+        app:layout_constraintVertical_bias="0.498" />
 
 
     <TextView
         android:id="@+id/tv_player1_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scaleX="-1"
-        android:scaleY="-1"
         android:text="name"
         android:textAlignment="center"
+        android:textStyle="bold"
         android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_player1"
         app:layout_constraintEnd_toEndOf="@+id/iv_player1"
-        app:layout_constraintStart_toStartOf="@+id/iv_player1"
-        app:layout_constraintTop_toTopOf="@+id/iv_player1" />
+        app:layout_constraintHorizontal_bias="0.47"
+        app:layout_constraintStart_toStartOf="@+id/iv_player1" />
 
     <TextView
         android:id="@+id/tv_player2_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="-20dp"
-        android:rotation="-90"
         android:text="TextView"
+        android:textAlignment="center"
+        android:textStyle="bold"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/iv_player2"
         app:layout_constraintEnd_toEndOf="@+id/iv_player2"
@@ -73,8 +71,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="-20dp"
-        android:rotation="90"
         android:text="TextView"
+        android:textAlignment="center"
+        android:textStyle="bold"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/iv_player3"
         app:layout_constraintStart_toStartOf="@+id/iv_player3"
