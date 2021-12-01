@@ -12,8 +12,10 @@
         android:layout_height="60dp"
         android:rotation="90"
         android:visibility="invisible"
-        app:srcCompat="@drawable/player_blue"
-        tools:layout_editor_absoluteY="176dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/player_blue" />
 
     <ImageView
         android:id="@+id/iv_player2"
@@ -21,9 +23,11 @@
         android:layout_height="60dp"
         android:rotation="-90"
         android:visibility="invisible"
-        app:srcCompat="@drawable/player_yellow"
-        tools:layout_editor_absoluteX="671dp"
-        tools:layout_editor_absoluteY="176dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.498"
+        app:srcCompat="@drawable/player_yellow" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_player1"
@@ -67,5 +71,30 @@
         app:layout_constraintEnd_toStartOf="@+id/recyclerView_player1"
         app:layout_constraintStart_toStartOf="@+id/iv_player1"
         app:layout_constraintTop_toTopOf="@+id/iv_player1" />
+
+    <TextView
+        android:id="@+id/tv_player2_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="-20dp"
+        android:rotation="-90"
+        android:text="TextView"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_player2"
+        app:layout_constraintEnd_toEndOf="@+id/iv_player2"
+        app:layout_constraintTop_toTopOf="@+id/iv_player2"
+        app:layout_constraintVertical_bias="0.512" />
+
+    <TextView
+        android:id="@+id/tv_player3_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="-20dp"
+        android:rotation="90"
+        android:text="TextView"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_player3"
+        app:layout_constraintStart_toStartOf="@+id/iv_player3"
+        app:layout_constraintTop_toTopOf="@+id/iv_player3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

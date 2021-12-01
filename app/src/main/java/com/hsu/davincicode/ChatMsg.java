@@ -13,7 +13,7 @@ public class ChatMsg implements Serializable {
     public String UserName;
     public String data;
     public ArrayList<String> list = new ArrayList<>();
-    public Map<String, Vector<Card>> cards= new HashMap<>();
+    public Vector<Card> cards= new Vector<>();
 
     public ChatMsg(String UserName, String code, String msg) {
         this.code = code;

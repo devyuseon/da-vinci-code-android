@@ -22,9 +22,9 @@ import java.net.Socket;
 public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
 
-    public Socket socket;
-    public ObjectInputStream ois;
-    public ObjectOutputStream oos;
+    public transient Socket socket;
+    public transient ObjectInputStream ois;
+    public transient ObjectOutputStream oos;
 
     private NetworkUtils networkUtils;
     private NetworkObj networkObj;

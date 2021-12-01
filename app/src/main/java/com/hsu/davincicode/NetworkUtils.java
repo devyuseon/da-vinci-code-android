@@ -100,13 +100,13 @@ public class NetworkUtils implements Serializable {
                 cm.code = (String) networkObj.getOis().readObject();
                 cm.UserName = (String) networkObj.getOis().readObject();
                 cm.data = (String) networkObj.getOis().readObject();
-                if (cm.code.matches("ROOMLIST") || cm.code.matches("ROOMUSERLIST") || cm.code.matches("READY")) {
+                if (cm.code.matches("ROOMLIST") || cm.code.matches("ROOMUSERLIST")) {
                     cm.list.clear();
                     cm.list = (ArrayList<String>) networkObj.getOis().readObject();
                 }
                 if (cm.code.matches("READY")) {
                     cm.cards.clear();
-                    cm.cards = (Map<String, Vector<Card>>) networkObj.getOis().readObject();
+                    cm.cards = (Vector<Card>) networkObj.getOis().readObject();
                 }
             } catch (StreamCorruptedException e) {
                 Log.w("ServerError", e);

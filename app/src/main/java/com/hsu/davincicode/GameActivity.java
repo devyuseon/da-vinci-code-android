@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.hsu.davincicode.databinding.ActivityGameBinding;
@@ -85,8 +87,19 @@ public class GameActivity extends AppCompatActivity {
 
         private void publishProgress(ChatMsg cm) {
             handler.post(() -> {
-                if (cm.code.matches("ROOMUSERLIST") && cm.UserName.equals(userName)) { // 방 목록 수신 ( 내 요청일 경우에만 )
-
+                if (cm.code.matches("ROOMUSERLIST") && cm.UserName.equals(userName)) {
+                    int playerCount = cm.list.size() - 1; // 나를 제외한 플레이어 수
+                    int i = 0;
+                    TextView[] tvUserNames = {binding.tvPlayer1Name, binding.tvPlayer2Name, binding.tvPlayer3Name};
+                    ImageView[] ivUserNames = {binding.ivPlayer1, binding.ivPlayer2, binding.ivPlayer3};
+                    for (String name : cm.list) {
+                        if(!name.equals(userName) && i < playerCount) {
+                            tvUserNames[i].setText(name);
+                            tvUserNames[i].setVisibility(View.VISIBLE);
+                            ivUserNames[i].setVisibility(View.VISIBLE);
+                            i++;
+                        }
+                    }
                 }
                 if (cm.code.matches("READY")) {
                     binding.btnReady.setVisibility(View.GONE);
@@ -95,25 +108,4 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    public void doReceive() {
-        new Thread() {
-            public void run() {
-                while (true) {
-                    ChatMsg cm;
-                    cm = networkUtils.readChatMsg();
-                    if (cm != null)
-                        Log.d("FromServer[GameActivity]", String.format("code: %s / userName: %s / data: %s / list: %s / cards: %s", cm.code, cm.UserName, cm.data, cm.list.toString(), cm.cards.toString()));
-
-                    handler.post(() -> {
-                        if (cm.code.matches("ROOMUSERLIST") && cm.UserName.equals(userName)) { // 방 목록 수신 ( 내 요청일 경우에만 )
-
-                        }
-                        if (cm.code.matches("READY")) {
-                            binding.btnReady.setVisibility(View.GONE);
-                        }
-                    });
-                }
-            }
-        }.start();
-    }
 }
