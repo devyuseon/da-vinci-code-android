@@ -3,6 +3,7 @@ package com.hsu.davincicode;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -27,6 +28,7 @@ public class GameActivity extends AppCompatActivity {
     private ArrayList<String> userList = new ArrayList<>();
 
     private Handler handler; // 스레드에서 UI 작업하기 위한 핸들러
+    private Boolean isDoReceiveRunning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +51,12 @@ public class GameActivity extends AppCompatActivity {
             roomName = getIntent().getStringExtra("roomName");
         }
 
-        doReceive();
+        //doReceive();
+        isDoReceiveRunning = true;
+        ReceiveMsgTask receiveMsgTask = new ReceiveMsgTask();
+        receiveMsgTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        handler = new Handler();
+
         ChatMsg cm = new ChatMsg(userName, "ROOMUSERLIST", roomId);
         networkUtils.sendChatMsg(cm);
 
@@ -57,6 +64,35 @@ public class GameActivity extends AppCompatActivity {
             ChatMsg cm1 = new ChatMsg(userName, "READY", roomId);
             networkUtils.sendChatMsg(cm1);
         });
+    }
+
+    class ReceiveMsgTask extends AsyncTask<ChatMsg, String, Void> {
+
+
+        @Override
+        protected Void doInBackground(ChatMsg... strings) {
+
+            while (isDoReceiveRunning) {
+                ChatMsg cm = networkUtils.readChatMsg();
+
+                if (!cm.code.isEmpty()) {
+                    Log.d("FromServer[GameActivity]", String.format("code: %s / userName: %s / data: %s / list: %s / cards: %s", cm.code, cm.UserName, cm.data, cm.list.toString(), cm.cards.toString()));
+                    publishProgress(cm);
+                }
+            }
+            return null;
+        }
+
+        private void publishProgress(ChatMsg cm) {
+            handler.post(() -> {
+                if (cm.code.matches("ROOMUSERLIST") && cm.UserName.equals(userName)) { // 방 목록 수신 ( 내 요청일 경우에만 )
+
+                }
+                if (cm.code.matches("READY")) {
+                    binding.btnReady.setVisibility(View.GONE);
+                }
+            });
+        }
     }
 
     public void doReceive() {

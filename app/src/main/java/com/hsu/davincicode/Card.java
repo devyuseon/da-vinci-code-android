@@ -1,6 +1,10 @@
 package com.hsu.davincicode;
 
-class Card {
+import java.io.Serializable;
+
+class Card implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String owner;
     private int cardNum; // 0~11
     private String cardColor;
