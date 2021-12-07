@@ -27,13 +27,6 @@ class Card implements Serializable {
         isOpened = false;
     }
 
-    public Card() { // 상대방 카드 초기화할때
-        cardNum = 100; // 모르는 카드
-        cardColor = "n"; // 모르는 카드 색은 n
-        isJocker = false; // 모르는 카드 조커 기본값은 false
-        isOpened = false;
-    }
-
     @Override
     public String toString() {
         return "("+ cardColor + " " + cardNum + ")";

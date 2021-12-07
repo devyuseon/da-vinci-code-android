@@ -143,23 +143,29 @@ public class GameActivity extends AppCompatActivity {
                 if (cm.code.matches("READY")) {
                     binding.btnReady.setVisibility(View.GONE);
 
-                    /* 카드 정보 초기화 */
-                    for (String cardInfo : cm.list) {
-                        myCardList.add(new Card(cardInfo.substring(0,1), Integer.parseInt(cardInfo.substring(1))));
-                    }
+                    if (cm.UserName.equals(userName)) { // 내 카드 정보일때
+                        binding.btnReady.setVisibility(View.GONE);
 
-                    /* 나 제외 다른 유저 카드 리스트 초기화 */
-                    for (String user: userList) {
-                        ArrayList<Card> cardList = new ArrayList<>();
-                        for (int i = 0; i < myCardList.size(); i++) {
-                            cardList.add(new Card());
+                        for (String cardInfo : cm.list) {
+                            myCardList.add(new Card(cardInfo.substring(0,1), Integer.parseInt(cardInfo.substring(1))));
+                            Collections.sort(myCardList, sortCard);
                         }
-                        userCardList.put(user, cardList); // userCardList: <이름, 카드리스트>
+                    } else { // 나 제외 다른 유저 카드 리스트 초기화
+                        ArrayList<Card> cardList = new ArrayList<>();
+                        for (String cardInfo : cm.list) {
+                            cardList.add(new Card(cardInfo.substring(0,1), Integer.parseInt(cardInfo.substring(1))));
+                        }
+                        Collections.sort(cardList, sortCard);
+                        userCardList.put(cm.UserName, cardList);
                     }
 
-                    Collections.sort(myCardList, sortCard);
                     Log.d("CardList[내꺼]", myCardList.toString());
                     Log.d("CardList[다른사람]", userCardList.toString());
+
+                    if (userCardList.size() + 1 == userList.size()) {
+                        ChatMsg cm2 = new ChatMsg(userName, "TURN", roomId);
+                        networkUtils.sendChatMsg(cm2);
+                    }
                 }
             });
         }
