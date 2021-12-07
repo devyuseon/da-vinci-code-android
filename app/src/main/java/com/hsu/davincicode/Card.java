@@ -17,11 +17,13 @@ class Card implements Serializable {
     private String cardColor;
     private Boolean isJocker;
     private Boolean isOpened;
+    private Boolean isMyCard;
 
-    public Card(String color, int num) {
+    public Card(String color, int num, Boolean isMyCard) {
         this.owner = "RoomId";
         this.cardColor = color;
         this.cardNum = num;
+        this.isMyCard = isMyCard;
         if (cardNum == -1) this.isJocker = true;
         else this.isJocker = false;
         isOpened = false;
