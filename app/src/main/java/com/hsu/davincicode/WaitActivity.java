@@ -103,9 +103,9 @@ public class WaitActivity extends AppCompatActivity {
                         Log.d("FromServer[WaitActivity]", String.format("code: %s / userName: %s / data: %s / list: %s", cm.code, cm.UserName, cm.data, cm.list.toString()));
 
                     handler.post(() -> {
-                        if (cm.code.matches("ROOMUSERLIST") && cm.UserName.equals(userName)) { // 방 목록 수신 ( 내 요청일 경우에만 )
+                        if (cm.code.matches("ROOMUSERLIST")) { // 방 목록 수신 ( 내 요청일 경우에만 )
                             // 서버에서 전송을 두번 하므로 두번 반영 안되도록 설정
-                            if (cm.list.size() - userList.size() > 0) {
+                            if (userList.size() == 0) {
                                 userList.addAll(cm.list);
                                 waitListAdapter.notifyDataSetChanged();
                             }

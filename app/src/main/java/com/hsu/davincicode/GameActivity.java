@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.hsu.davincicode.databinding.ActivityGameBinding;
 
 import java.util.ArrayList;
@@ -45,7 +46,10 @@ public class GameActivity extends AppCompatActivity {
     private ArrayList<String> userList = new ArrayList<>();
     private ArrayList<Card> myCardList = new ArrayList<>();
     private int leftCardCount = 24;
-    private Map<String, ArrayList<Card>> userCardList = new HashMap<String, ArrayList<Card>>();
+    private Map<String, ArrayList<Card>> userCardList = new HashMap<>();
+    private Map<String, CardListAdapter> userCardListAdpater = new HashMap<>();
+    private Map<String, RecyclerView> userRecyclerView = new HashMap<>();
+
     private Comparator<Card> sortCard;
 
     private CountDownTimer countDownTimer;
@@ -115,11 +119,35 @@ public class GameActivity extends AppCompatActivity {
         binding.recyclerviewMycard.setAdapter(myCardListAdapter);
     }
 
-    public void setUserRecyclerView(ArrayList<Card> cardList) {
-        // 다른 유저 카드 리사이클러뷰 세팅 ,, 아직 두번째, 세번째 플레이어 고려 안함
-        player1CardListAdapter = new CardListAdapter(cardList);
-        binding.recyclerviewPlayer1.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
-        binding.recyclerviewPlayer1.setAdapter(player1CardListAdapter);
+    /* 리스트어답터, 리사이클러뷰 헤쉬맵으로 초기화. 키:유저네임, 값: */
+    public void setUserRecyclerView(String user) {
+        RecyclerView recyclerView = null;
+        ArrayList<Card> cardList;
+        cardList = userCardList.get(user);
+
+        switch (userList.size()) {
+            case 1:
+                recyclerView = binding.recyclerviewPlayer1;
+                break;
+                // 2,3,4 추가할것
+            default:
+                System.out.println("플레이어가 한 명밖에 없음...!");
+                break;
+        }
+
+        if (recyclerView != null) {
+            CardListAdapter cardListAdapter = new CardListAdapter(cardList);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
+            recyclerView.setAdapter(cardListAdapter);
+
+            userCardListAdpater.put(user, cardListAdapter);
+            userRecyclerView.put(user, recyclerView);
+        }
+
+        if (userList.size() == userRecyclerView.size()) {
+            sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
+        }
+
     }
 
     public void setTimer(int time) {
@@ -184,22 +212,25 @@ public class GameActivity extends AppCompatActivity {
     /* 유저 프로필 이미지뷰, 이름 텍스트뷰 설정 */
     public void ROOMLISTUSER(ChatMsg cm) {
         int playerCount = cm.list.size() - 1; // 나를 제외한 플레이어 수
+        if (userList.size() == 0) {
+            userList = cm.list;
+            userList.remove(userName);
+            int i = 0;
 
-        userList = cm.list;
-        userList.remove(userName);
-        int i = 0;
+            TextView[] tvUserNames = {binding.tvPlayer1Name, binding.tvPlayer2Name, binding.tvPlayer3Name};
+            ImageView[] ivUserNames = {binding.ivPlayer1, binding.ivPlayer2, binding.ivPlayer3};
 
-        TextView[] tvUserNames = {binding.tvPlayer1Name, binding.tvPlayer2Name, binding.tvPlayer3Name};
-        ImageView[] ivUserNames = {binding.ivPlayer1, binding.ivPlayer2, binding.ivPlayer3};
-
-        for (String name : userList) {
-            if (!name.equals(userName) && i < playerCount) {
-                tvUserNames[i].setText(name);
-                tvUserNames[i].setVisibility(View.VISIBLE);
-                ivUserNames[i].setVisibility(View.VISIBLE);
-                i++;
+            for (String name : userList) {
+                if (!name.equals(userName) && i < playerCount) {
+                    tvUserNames[i].setText(name);
+                    tvUserNames[i].setVisibility(View.VISIBLE);
+                    ivUserNames[i].setVisibility(View.VISIBLE);
+                    i++;
+                }
             }
         }
+        System.out.println("userList: " + userList);
+
     }
 
     public void READY(ChatMsg cm) {
@@ -219,7 +250,7 @@ public class GameActivity extends AppCompatActivity {
             Collections.sort(cardList, sortCard); // 정렬
             userCardList.put(cm.UserName, cardList); // 키: username 값: user cardlist
 
-            setUserRecyclerView(cardList);
+            setUserRecyclerView(cm.UserName);
         }
 
         Log.d("CardList[내꺼]", myCardList.toString());
@@ -227,13 +258,11 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void TURN(ChatMsg cm) {
-        if (cm.UserName.equals(userName)) { // 내 턴이면
-            binding.tvTurn.setText("내 턴");
+        if (cm.data.equals(userName)) { // 내 턴이면
+            showTakeOrMatchDialog();
         } else {
-            binding.tvTurn.setText(cm.data);
+            Snackbar.make(binding.getRoot(), cm.data + "의 턴입니다.", Snackbar.LENGTH_SHORT).show();
         }
-
-        showTakeOrMatchDialog();
     }
 
     public void TAKECARD(ChatMsg cm) {
@@ -242,6 +271,11 @@ public class GameActivity extends AppCompatActivity {
             myCardList.add(card);
             Collections.sort(myCardList, sortCard);
             myCardListAdapter.notifyDataSetChanged();
+        } else {
+            Card card = new Card(cm.data.substring(0,1), Integer.parseInt(cm.data.substring(1)), false);
+            userCardList.get(cm.UserName).add(card);
+            Collections.sort(userCardList.get(cm.UserName), sortCard);
+
         }
     }
 
@@ -270,7 +304,7 @@ public class GameActivity extends AppCompatActivity {
         private void publishProgress(ChatMsg cm) {
             handler.post(() -> {
 
-                if (cm.code.matches("ROOMUSERLIST") && cm.UserName.equals(userName)) {
+                if (cm.code.matches("ROOMUSERLIST")) {
                     ROOMLISTUSER(cm);
                 }
                 if (cm.code.matches("READY")) {
