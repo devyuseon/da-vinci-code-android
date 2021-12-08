@@ -50,7 +50,7 @@ public class GameActivity extends AppCompatActivity {
 
     private CountDownTimer countDownTimer;
 
-    private Handler handler; // 스레드에서 UI 작업하기 위한 핸들러
+    private Handler handler = new Handler(); // 스레드에서 UI 작업하기 위한 핸들러
     private Boolean isDoReceiveRunning;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -60,36 +60,25 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(binding.getRoot());
         binding.getRoot().setBackgroundColor(Color.parseColor("#808080"));
+        getSupportActionBar().hide(); // 액션바 숨기기
 
-        if (getIntent().hasExtra("roodId") && getIntent().hasExtra("roomName")) {
-            roomId = getIntent().getStringExtra("roomId");
-            roomName = getIntent().getStringExtra("roomName");
-        }
-
-        handler = new Handler();
-
+        // 내 정보 설정
         userName = userInfo.getUserName();
         networkUtils = new NetworkUtils(networkObj);
+        setMyRecyclerView(); // 내 카드 리스트 리사이클러뷰 세팅
 
-        if (getIntent().hasExtra("roomId") && getIntent().hasExtra("roomName")) {
-            roomId = getIntent().getStringExtra("roomId");
-            roomName = getIntent().getStringExtra("roomName");
-        }
+        roomId = userInfo.getMyRoom().getRoomId();
+        roomName = userInfo.getMyRoom().getRoomName();
 
-        // 내 카드 리사이클러뷰 세팅
-        myCardListAdapter = new CardListAdapter(myCardList);
-        binding.recyclerviewMycard.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
-        binding.recyclerviewMycard.setAdapter(myCardListAdapter);
+        // 서버에 유저리스트 요청
+        sendMsgToServer(new ChatMsg(userName, "ROOMUSERLIST", roomId));
 
-        //doReceive();
+        // Receive Task
         isDoReceiveRunning = true;
         ReceiveMsgTask receiveMsgTask = new ReceiveMsgTask();
-        receiveMsgTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        handler = new Handler();
+        receiveMsgTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); // 병렬 시행
 
-        ChatMsg cm = new ChatMsg(userName, "ROOMUSERLIST", roomId);
-        networkUtils.sendChatMsg(cm);
-
+        // 정렬 기준 설정
         sortCard = new Comparator<Card>() {
             @Override
             public int compare(Card o1, Card o2) {
@@ -112,9 +101,18 @@ public class GameActivity extends AppCompatActivity {
         };
 
         binding.btnReady.setOnClickListener(v -> {
-            ChatMsg cm1 = new ChatMsg(userName, "READY", roomId);
-            networkUtils.sendChatMsg(cm1);
+            networkUtils.sendChatMsg(new ChatMsg(userName, "READY", roomId));
         });
+    }
+
+    public void sendMsgToServer(ChatMsg cm) {
+        networkUtils.sendChatMsg(cm);
+    }
+
+    public void setMyRecyclerView() {
+        myCardListAdapter = new CardListAdapter(myCardList);
+        binding.recyclerviewMycard.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
+        binding.recyclerviewMycard.setAdapter(myCardListAdapter);
     }
 
     public void setUserRecyclerView(ArrayList<Card> cardList) {
@@ -141,6 +139,7 @@ public class GameActivity extends AppCompatActivity {
         };
 
         countDownTimer.start();
+
     }
 
     public void cancleTimer() {
@@ -148,6 +147,7 @@ public class GameActivity extends AppCompatActivity {
         countDownTimer.cancel();
     }
 
+    // 카드 뽑기 or 카드 맞추기 다이얼로그
     public void showTakeOrMatchDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_choose_take_or_match, null);
 
@@ -162,8 +162,7 @@ public class GameActivity extends AppCompatActivity {
         Button btn_match = dialogView.findViewById(R.id.btn_dialog_choose_match);
 
         btn_take.setOnClickListener(v -> {
-            ChatMsg cm = new ChatMsg(userName, "TAKECARD", roomId);
-            networkUtils.sendChatMsg(cm);
+            sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId));
             dialog.dismiss();
         });
 
@@ -173,6 +172,82 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
+    public ArrayList<Card> initCardList(ArrayList<String> chatMsgList, ArrayList<Card> cardList, Boolean isMyCard) {
+        for (String cardInfo : chatMsgList) {
+            cardList.add(new Card(cardInfo.substring(0, 1), Integer.parseInt(cardInfo.substring(1)), isMyCard));
+        }
+        return cardList;
+    }
+
+    //------------------------------------- 프로토콜 설정 -------------------------------------------//
+
+    /* 유저 프로필 이미지뷰, 이름 텍스트뷰 설정 */
+    public void ROOMLISTUSER(ChatMsg cm) {
+        int playerCount = cm.list.size() - 1; // 나를 제외한 플레이어 수
+
+        userList = cm.list;
+        userList.remove(userName);
+        int i = 0;
+
+        TextView[] tvUserNames = {binding.tvPlayer1Name, binding.tvPlayer2Name, binding.tvPlayer3Name};
+        ImageView[] ivUserNames = {binding.ivPlayer1, binding.ivPlayer2, binding.ivPlayer3};
+
+        for (String name : userList) {
+            if (!name.equals(userName) && i < playerCount) {
+                tvUserNames[i].setText(name);
+                tvUserNames[i].setVisibility(View.VISIBLE);
+                ivUserNames[i].setVisibility(View.VISIBLE);
+                i++;
+            }
+        }
+    }
+
+    public void READY(ChatMsg cm) {
+        binding.btnReady.setVisibility(View.GONE);
+
+        if (cm.UserName.equals(userName)) { // 내 카드 정보일때
+            binding.btnReady.setVisibility(View.GONE);
+
+            myCardList = initCardList(cm.list, myCardList, true);
+            Collections.sort(myCardList, sortCard); // 정렬
+
+            myCardListAdapter.notifyDataSetChanged();
+
+        } else { // 나 제외 다른 유저 카드 리스트 초기화
+            ArrayList<Card> cardList = new ArrayList<>();
+            cardList = initCardList(cm.list, cardList, false);
+            Collections.sort(cardList, sortCard); // 정렬
+            userCardList.put(cm.UserName, cardList); // 키: username 값: user cardlist
+
+            setUserRecyclerView(cardList);
+        }
+
+        Log.d("CardList[내꺼]", myCardList.toString());
+        Log.d("CardList[다른사람]", userCardList.toString());
+    }
+
+    public void TURN(ChatMsg cm) {
+        if (cm.UserName.equals(userName)) { // 내 턴이면
+            binding.tvTurn.setText("내 턴");
+        } else {
+            binding.tvTurn.setText(cm.data);
+        }
+
+        showTakeOrMatchDialog();
+    }
+
+    public void TAKECARD(ChatMsg cm) {
+        if (cm.UserName.equals(userName)) { // 내 카드 뽑기면
+            Card card = new Card(cm.data.substring(0,1), Integer.parseInt(cm.data.substring(1)), true);
+            myCardList.add(card);
+            Collections.sort(myCardList, sortCard);
+            myCardListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------//
+
+    /* Receive Task */
     class ReceiveMsgTask extends AsyncTask<ChatMsg, String, Void> {
 
 
@@ -194,71 +269,20 @@ public class GameActivity extends AppCompatActivity {
         @RequiresApi(api = Build.VERSION_CODES.N)
         private void publishProgress(ChatMsg cm) {
             handler.post(() -> {
-                int playerCount = cm.list.size() - 1; // 나를 제외한 플레이어 수
 
                 if (cm.code.matches("ROOMUSERLIST") && cm.UserName.equals(userName)) {
-
-                    /* 유저 프로필 이미지뷰, 이름 텍스트뷰 설정 */
-                    userList = cm.list;
-                    userList.remove(userName);
-                    int i = 0;
-                    TextView[] tvUserNames = {binding.tvPlayer1Name, binding.tvPlayer2Name, binding.tvPlayer3Name};
-                    ImageView[] ivUserNames = {binding.ivPlayer1, binding.ivPlayer2, binding.ivPlayer3};
-                    for (String name : userList) {
-                        if (!name.equals(userName) && i < playerCount) {
-                            tvUserNames[i].setText(name);
-                            tvUserNames[i].setVisibility(View.VISIBLE);
-                            ivUserNames[i].setVisibility(View.VISIBLE);
-                            i++;
-                        }
-                    }
-
+                    ROOMLISTUSER(cm);
                 }
                 if (cm.code.matches("READY")) {
-                    binding.btnReady.setVisibility(View.GONE);
-
-                    if (cm.UserName.equals(userName)) { // 내 카드 정보일때
-                        binding.btnReady.setVisibility(View.GONE);
-
-                        for (String cardInfo : cm.list) {
-                            myCardList.add(new Card(cardInfo.substring(0, 1), Integer.parseInt(cardInfo.substring(1)), true));
-                            Collections.sort(myCardList, sortCard);
-                        }
-
-                        myCardListAdapter.notifyDataSetChanged();
-                    } else { // 나 제외 다른 유저 카드 리스트 초기화
-                        ArrayList<Card> cardList = new ArrayList<>();
-                        for (String cardInfo : cm.list) {
-                            cardList.add(new Card(cardInfo.substring(0, 1), Integer.parseInt(cardInfo.substring(1)), false));
-                        }
-                        Collections.sort(cardList, sortCard);
-                        userCardList.put(cm.UserName, cardList);
-
-                        setUserRecyclerView(cardList);
-                    }
-
-                    Log.d("CardList[내꺼]", myCardList.toString());
-                    Log.d("CardList[다른사람]", userCardList.toString());
-
+                    READY(cm);
                 }
 
                 if (cm.code.matches("TURN")) {
-                    if (cm.UserName.equals(userName)) { // 내 턴이면
-                        binding.tvTurn.setText("내 턴");
-                    } else {
-                        binding.tvTurn.setText(cm.data);
-                    }
-
-                    showTakeOrMatchDialog();
+                    TURN(cm);
                 }
 
                 if (cm.code.matches("TAKECARD")) {
-                    if (cm.UserName.equals(userName)) { // 내 카드 뽑기면
-                        Card card = new Card(cm.data.substring(0,1), Integer.parseInt(cm.data.substring(1)), true);
-                        myCardList.add(card);
-                        Collections.sort(myCardList, sortCard);
-                        myCardListAdapter.notifyDataSetChanged();
-                    }
+                    TAKECARD(cm);
                 }
             });
         }

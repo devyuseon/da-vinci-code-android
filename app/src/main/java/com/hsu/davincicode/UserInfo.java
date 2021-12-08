@@ -1,6 +1,11 @@
 package com.hsu.davincicode;
 
+import lombok.Getter;
+import lombok.Setter;
+
 // Singleton
+@Getter
+@Setter
 public class UserInfo {
     private String userName;
     private Room myRoom;
@@ -19,11 +24,4 @@ public class UserInfo {
         return LazyHolder.uniqueInstance;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setMyRoom(Room myRoom) {
-        this.myRoom = myRoom;
-    }
 }
