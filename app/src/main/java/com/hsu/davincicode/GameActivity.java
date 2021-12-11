@@ -275,7 +275,7 @@ public class GameActivity extends AppCompatActivity {
             Card card = new Card(cm.data.substring(0,1), Integer.parseInt(cm.data.substring(1)), false);
             userCardList.get(cm.UserName).add(card);
             Collections.sort(userCardList.get(cm.UserName), sortCard);
-
+            userCardListAdpater.get(cm.UserName).notifyDataSetChanged();
         }
     }
 
