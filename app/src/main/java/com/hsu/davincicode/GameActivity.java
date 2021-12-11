@@ -360,7 +360,7 @@ public class GameActivity extends AppCompatActivity {
                 }
 
                 if (cm.code.matches("FAIL")) {
-                    FAIL();
+                    FAIL(cm);
                 }
             });
         }
