@@ -25,6 +25,8 @@ public class NetworkUtils implements Serializable {
     private UserInfo userInfo = UserInfo.getInstance();
     private NetworkObj networkObj;
     boolean isCancel = false;
+    SendChatMsgTask sendChatMsgTask;
+
 
     public NetworkUtils(NetworkObj networkObj) {
         this.networkObj = networkObj;
@@ -47,7 +49,7 @@ public class NetworkUtils implements Serializable {
     }
 
     public void sendChatMsg(ChatMsg cm) {
-        SendChatMsgTask sendChatMsgTask = new SendChatMsgTask();
+        sendChatMsgTask = new SendChatMsgTask();
         sendChatMsgTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, cm);
     }
 
@@ -70,6 +72,8 @@ public class NetworkUtils implements Serializable {
 
         @Override
         protected Void doInBackground(ChatMsg... param) {
+            if(isCancelled())
+                return null;
             while (count == 0) {
                 ChatMsg cm = param[0];
                 try {

@@ -180,6 +180,7 @@ public class RoomListActivity extends AppCompatActivity {
         bundle.putString("roomId", room.getRoomId());
         intent.putExtras(bundle);
         isDoReceiveRunning = false; // RoomListActivity의 Doreceive 스레드 종료
+        networkUtils.sendChatMsgTask.cancel(false);
         startActivity(intent);
         finish();
     }
