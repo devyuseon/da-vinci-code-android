@@ -276,11 +276,15 @@ public class GameActivity extends AppCompatActivity {
 
     public void TURN(ChatMsg cm) {
         if (cm.data.equals(userName)) { // 내 턴이면
-            // 남은 카드 있으면 무조건 카드뽑기
-            if (leftCardsCount > 0)
-                sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId));
-            Snackbar.make(binding.getRoot(), "랜덤으로 카드 1장을 뽑았습니다.", Snackbar.LENGTH_SHORT).show();
-            showPassOrMatchDialog();
+            Snackbar.make(binding.getRoot(),  "당신의 턴입니다! 카드뽑기 버튼을 눌러주세요😊", Snackbar.LENGTH_SHORT).show();
+
+            binding.btnCardOpen.setVisibility(View.VISIBLE);
+            binding.btnCardOpen.setOnClickListener(v -> {
+                if (leftCardsCount > 0)
+                    sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId));
+                binding.btnCardOpen.setVisibility(View.INVISIBLE);
+                showPassOrMatchDialog();
+            });
         } else {
             Snackbar.make(binding.getRoot(), cm.data + "의 턴입니다.", Snackbar.LENGTH_SHORT).show();
         }
@@ -292,11 +296,13 @@ public class GameActivity extends AppCompatActivity {
             myCardList.add(card);
             Collections.sort(myCardList, sortCard);
             myCardListAdapter.notifyDataSetChanged();
+            Snackbar.make(binding.getRoot(), "랜덤으로 카드 1장을 뽑았습니다.", Snackbar.LENGTH_SHORT).show();
         } else {
             Card card = new Card(cm.data.substring(0, 1), Integer.parseInt(cm.data.substring(1)), false);
             userCardList.get(cm.UserName).add(card);
             Collections.sort(userCardList.get(cm.UserName), sortCard);
             userCardListAdpater.get(cm.UserName).notifyDataSetChanged();
+            Snackbar.make(binding.getRoot(), cm.UserName + "이 " + "카드 1장을 뽑았습니다.", Snackbar.LENGTH_SHORT).show();
         }
         notifyLeftCardsCount("DECREASE");
     }
@@ -310,9 +316,21 @@ public class GameActivity extends AppCompatActivity {
 
     public void FAIL(ChatMsg cm) {
         if(cm.UserName.equals(userName))
-            Snackbar.make(binding.getRoot(), String.format("카드 맞추기 실패 😱", cm.UserName), Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(binding.getRoot(), String.format("카드 맞추기 실패😱 카드가 오픈됩니다..", cm.UserName), Snackbar.LENGTH_SHORT).show();
         else
-            Snackbar.make(binding.getRoot(), String.format("%s가 카드 맞추기에 실패했습니다. 카드가 오픈됩니다..!", cm.UserName), Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(binding.getRoot(), String.format("%s가 카드 맞추기에 실패했습니다. %s의 카드가 오픈됩니다!", cm.UserName, cm.UserName), Snackbar.LENGTH_SHORT).show();
+    }
+
+    public void CARDOPEN(ChatMsg cm) {
+        String cardOwner = cm.UserName;
+        int cardIndex = Integer.parseInt(cm.data.trim());
+
+        if(cardOwner.equals(userName)) {
+            // 내 카드 오픈됨
+        } else {
+            userCardList.get(cardOwner).get(cardIndex).setIsOpened(true);
+            userCardListAdpater.get(cardOwner).cardOpen(cardIndex);
+        }
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -361,6 +379,10 @@ public class GameActivity extends AppCompatActivity {
 
                 if (cm.code.matches("FAIL")) {
                     FAIL(cm);
+                }
+
+                if (cm.code.matches("CARDOPEN")) {
+                    CARDOPEN(cm);
                 }
             });
         }
