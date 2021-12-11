@@ -42,9 +42,8 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         canMatch = isCanMatch;
     }
 
-    public void cardOpen(int index) {
-        cardList.get(index).setIsOpened(true);
-        notifyItemChanged(index);
+    public void cardOpen(ArrayList<Card> newCardList) {
+        this.cardList = newCardList;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
