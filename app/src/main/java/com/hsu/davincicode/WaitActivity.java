@@ -89,6 +89,7 @@ public class WaitActivity extends AppCompatActivity {
         gameIntent.putExtra("roomId", roomId);
         gameIntent.putExtra("roomName", roomName);
         isDoReceiveRunning = false;
+        networkUtils.sendChatMsgTask.cancel(false);
         startActivity(gameIntent);
         finish();
     }

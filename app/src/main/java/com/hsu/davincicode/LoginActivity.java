@@ -75,6 +75,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void startRoomListActivity() {
         startActivity(new Intent(this, RoomListActivity.class));
+        networkUtils.sendChatMsgTask.cancel(false);
         finish();
     }
 }

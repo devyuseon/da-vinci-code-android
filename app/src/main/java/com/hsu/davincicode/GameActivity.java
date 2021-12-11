@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -27,8 +26,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class GameActivity extends AppCompatActivity {
     private ActivityGameBinding binding;
@@ -43,9 +40,10 @@ public class GameActivity extends AppCompatActivity {
 
     CardListAdapter myCardListAdapter;
     CardListAdapter player1CardListAdapter;
+    private final int MAXCARDSCOUNT = 26;
+    private int leftCardsCount = MAXCARDSCOUNT;
     private ArrayList<String> userList = new ArrayList<>();
     private ArrayList<Card> myCardList = new ArrayList<>();
-    private int leftCardCount = 24;
     private Map<String, ArrayList<Card>> userCardList = new HashMap<>();
     private Map<String, CardListAdapter> userCardListAdpater = new HashMap<>();
     private Map<String, RecyclerView> userRecyclerView = new HashMap<>();
@@ -114,7 +112,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void setMyRecyclerView() {
-        myCardListAdapter = new CardListAdapter(myCardList);
+        myCardListAdapter = new CardListAdapter(getApplicationContext(),myCardList, userName);
         binding.recyclerviewMycard.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         binding.recyclerviewMycard.setAdapter(myCardListAdapter);
     }
@@ -128,14 +126,14 @@ public class GameActivity extends AppCompatActivity {
             case 1:
                 recyclerView = binding.recyclerviewPlayer1;
                 break;
-                // 2,3,4 추가할것
+            // 2,3,4 추가할것
             default:
                 System.out.println("플레이어가 한 명밖에 없음...!");
                 break;
         }
 
         if (recyclerView != null) {
-            CardListAdapter cardListAdapter = new CardListAdapter(cardList);
+            CardListAdapter cardListAdapter = new CardListAdapter(getApplicationContext(), cardList, user);
             recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
             recyclerView.setAdapter(cardListAdapter);
 
@@ -174,29 +172,48 @@ public class GameActivity extends AppCompatActivity {
         countDownTimer.cancel();
     }
 
-    // 카드 뽑기 or 카드 맞추기 다이얼로그
-    public void showTakeOrMatchDialog() {
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_choose_take_or_match, null);
+    public void setUserListCanMatch(Boolean isCanMatch) {
+        for (String user : userList) {
+            userCardListAdpater.get(user).setCanMatch(isCanMatch);
+        }
+    }
+
+    public void notifyLeftCardsCount(String opt) {
+        if(opt.equals("INIT")) {
+            leftCardsCount -= myCardList.size() * 2;
+        }
+        if(opt.equals("DECREASE")) {
+            leftCardsCount --;
+        }
+
+        Log.d("GAME", String.format("남은 카드는 %d개 입니다.",leftCardsCount));
+    }
+
+    // 카드 맞추기 or PASS 다이얼로그
+    public void showPassOrMatchDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_choose_match_or_pass, null);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("당신의 턴입니다. 어떤 것을 선택하시겠습니까?")
+        builder.setTitle("카드 맞추기에 도전하시겠습니까?")
                 .setView(dialogView)
                 .setCancelable(false);
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        Button btn_take = dialogView.findViewById(R.id.btn_dialog_choose_take);
+        Button btn_pass = dialogView.findViewById(R.id.btn_dialog_choose_pass);
         Button btn_match = dialogView.findViewById(R.id.btn_dialog_choose_match);
 
-        btn_take.setOnClickListener(v -> {
-            sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId));
+        btn_pass.setOnClickListener(v -> {
+            sendMsgToServer(new ChatMsg(userName, "PASS", roomId));
             dialog.dismiss();
         });
 
         btn_match.setOnClickListener(v -> {
             setTimer(10);
+            setUserListCanMatch(true);
             dialog.dismiss();
         });
+
     }
 
     public ArrayList<Card> initCardList(ArrayList<String> chatMsgList, ArrayList<Card> cardList, Boolean isMyCard) {
@@ -243,6 +260,8 @@ public class GameActivity extends AppCompatActivity {
 
             myCardListAdapter.notifyDataSetChanged();
 
+            notifyLeftCardsCount("INIT");
+
         } else { // 나 제외 다른 유저 카드 리스트 초기화
             ArrayList<Card> cardList = new ArrayList<>();
             cardList = initCardList(cm.list, cardList, false);
@@ -258,7 +277,11 @@ public class GameActivity extends AppCompatActivity {
 
     public void TURN(ChatMsg cm) {
         if (cm.data.equals(userName)) { // 내 턴이면
-            showTakeOrMatchDialog();
+            // 남은 카드 있으면 무조건 카드뽑기
+            if (leftCardsCount > 0)
+                sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId));
+            Snackbar.make(binding.getRoot(), "랜덤으로 카드 1장을 뽑았습니다.", Snackbar.LENGTH_SHORT).show();
+            showPassOrMatchDialog();
         } else {
             Snackbar.make(binding.getRoot(), cm.data + "의 턴입니다.", Snackbar.LENGTH_SHORT).show();
         }
@@ -266,16 +289,25 @@ public class GameActivity extends AppCompatActivity {
 
     public void TAKECARD(ChatMsg cm) {
         if (cm.UserName.equals(userName)) { // 내 카드 뽑기면
-            Card card = new Card(cm.data.substring(0,1), Integer.parseInt(cm.data.substring(1)), true);
+            Card card = new Card(cm.data.substring(0, 1), Integer.parseInt(cm.data.substring(1)), true);
             myCardList.add(card);
             Collections.sort(myCardList, sortCard);
             myCardListAdapter.notifyDataSetChanged();
         } else {
-            Card card = new Card(cm.data.substring(0,1), Integer.parseInt(cm.data.substring(1)), false);
+            Card card = new Card(cm.data.substring(0, 1), Integer.parseInt(cm.data.substring(1)), false);
             userCardList.get(cm.UserName).add(card);
             Collections.sort(userCardList.get(cm.UserName), sortCard);
             userCardListAdpater.get(cm.UserName).notifyDataSetChanged();
         }
+        notifyLeftCardsCount("DECREASE");
+    }
+
+    public void SUCCESS() {
+
+    }
+
+    public void FAIL() {
+
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -316,6 +348,14 @@ public class GameActivity extends AppCompatActivity {
 
                 if (cm.code.matches("TAKECARD")) {
                     TAKECARD(cm);
+                }
+
+                if (cm.code.matches("SUCCESS")) {
+
+                }
+
+                if (cm.code.matches("FAIL")) {
+
                 }
             });
         }
