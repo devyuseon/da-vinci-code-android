@@ -122,8 +122,7 @@ public class GameActivity extends AppCompatActivity {
     /* 리스트어답터, 리사이클러뷰 헤쉬맵으로 초기화. 키:유저네임, 값: */
     public void setUserRecyclerView(String user) {
         RecyclerView recyclerView = null;
-        ArrayList<Card> cardList;
-        cardList = userCardList.get(user);
+        ArrayList<Card> cardList = userCardList.get(user);
 
         switch (userList.size()) {
             case 1:
@@ -145,7 +144,7 @@ public class GameActivity extends AppCompatActivity {
         }
 
         if (userList.size() == userRecyclerView.size()) {
-            sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
+            sendMsgToServer(new ChatMsg(userName, "START", roomId));
         }
 
     }
