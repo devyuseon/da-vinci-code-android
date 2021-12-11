@@ -302,7 +302,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void SUCCESS() {
-
+        showPassOrMatchDialog();
     }
 
     public void FAIL() {
@@ -350,11 +350,11 @@ public class GameActivity extends AppCompatActivity {
                 }
 
                 if (cm.code.matches("SUCCESS")) {
-
+                    SUCCESS();
                 }
 
                 if (cm.code.matches("FAIL")) {
-
+                    FAIL();
                 }
             });
         }
