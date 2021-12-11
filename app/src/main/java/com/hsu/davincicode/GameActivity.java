@@ -39,7 +39,6 @@ public class GameActivity extends AppCompatActivity {
     private String userName;
 
     CardListAdapter myCardListAdapter;
-    CardListAdapter player1CardListAdapter;
     private final int MAXCARDSCOUNT = 26;
     private int leftCardsCount = MAXCARDSCOUNT;
     private ArrayList<String> userList = new ArrayList<>();

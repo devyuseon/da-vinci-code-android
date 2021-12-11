@@ -46,12 +46,12 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
 
         public ViewHolder(View view) {
             super(view);
-
             // 클릭 리스너 구현
             ImageView ivCard = view.findViewById(R.id.iv_card);
-
             ivCard.setOnClickListener(v -> {
                 if (canMatch) {
+                    System.out.println(getLayoutPosition());
+
                     View dialogView = View.inflate(context, R.layout.dialog_match, null);
                     AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
                     builder.setTitle("카드 색상, 숫자를 맞춰주세요!")
@@ -78,7 +78,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                         if (number > 11 || number < -1) {
                             Snackbar.make(view, "0이상 11이하의 숫자, 또는 조커일 경우 -1을 입력해 주세요.", Snackbar.LENGTH_LONG).show();
                         } else {
-                            String msg = owner + "//" + color + numberStr + "//" + userInfo.getMyRoom().getRoomId();
+                            String msg = owner + "//" + color + numberStr + "//" + getAdapterPosition() + "//" +  userInfo.getMyRoom().getRoomId();
                             networkUtils.sendChatMsg(new ChatMsg(userInfo.getUserName(), "MATCHCARD", msg));
                             dialog.dismiss();
                         }
