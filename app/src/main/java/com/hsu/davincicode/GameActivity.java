@@ -301,12 +301,18 @@ public class GameActivity extends AppCompatActivity {
         notifyLeftCardsCount("DECREASE");
     }
 
-    public void SUCCESS() {
-        showPassOrMatchDialog();
+    public void SUCCESS(ChatMsg cm) {
+        if(cm.UserName.equals(userName))
+            showPassOrMatchDialog();
+        else
+            Snackbar.make(binding.getRoot(), String.format("%s가 카드를 맞췄습니다!👏", cm.UserName), Snackbar.LENGTH_SHORT).show();
     }
 
-    public void FAIL() {
-
+    public void FAIL(ChatMsg cm) {
+        if(cm.UserName.equals(userName))
+            Snackbar.make(binding.getRoot(), String.format("카드 맞추기 실패 😱", cm.UserName), Snackbar.LENGTH_SHORT).show();
+        else
+            Snackbar.make(binding.getRoot(), String.format("%s가 카드 맞추기에 실패했습니다. 카드가 오픈됩니다..!", cm.UserName), Snackbar.LENGTH_SHORT).show();
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -350,7 +356,7 @@ public class GameActivity extends AppCompatActivity {
                 }
 
                 if (cm.code.matches("SUCCESS")) {
-                    SUCCESS();
+                    SUCCESS(cm);
                 }
 
                 if (cm.code.matches("FAIL")) {
