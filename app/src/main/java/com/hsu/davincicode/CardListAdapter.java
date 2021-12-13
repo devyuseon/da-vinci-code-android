@@ -140,7 +140,28 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
 
         if (card.getIsMyCard()) { // 내 카드면 카드 정보대로 카드 셋팅
             holder.itemView.setBackgroundResource(imageId);
-            if (card.getIsOpened()) holder.ivCheck.setVisibility(View.VISIBLE);
+            if (card.getIsOpened()) {
+                if (card.getIsNewOpened()) {
+                    int finalImageId = imageId;
+                    holder.itemView.animate().withLayer()
+                            .rotationY(90)
+                            .setDuration(150)
+                            .withEndAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    holder.itemView.setBackgroundResource(finalImageId);
+                                    holder.itemView.setRotationY(-90);
+                                    holder.itemView.animate().withLayer()
+                                            .rotationY(0)
+                                            .setDuration(500)
+                                            .start();
+                                }
+                            }).start();
+                    card.setIsNewOpened(false);
+                }
+
+                holder.ivCheck.setVisibility(View.VISIBLE);
+            }
         } else { // 남의 카드면 오픈되었을 경우에만 카드 정보대로 카드 셋팅
             if (card.getIsOpened()) {
                 if (card.getIsNewOpened()) {
