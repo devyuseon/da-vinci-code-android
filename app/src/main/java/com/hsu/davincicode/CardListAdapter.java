@@ -13,6 +13,7 @@ import android.widget.RadioGroup;
 import androidx.annotation.NonNull;
 
 import android.app.AlertDialog;
+import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,10 +49,15 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
+        private final ImageView ivCheck;
+        private final ImageView ivCard;
+
         public ViewHolder(View view) {
             super(view);
             // 클릭 리스너 구현
-            ImageView ivCard = view.findViewById(R.id.iv_card);
+            ivCard = view.findViewById(R.id.iv_card);
+            ivCheck = view.findViewById(R.id.iv_check);
+
             ivCard.setOnClickListener(v -> {
                 if (canMatch) {
                     View dialogView = View.inflate(context, R.layout.dialog_match, null);
@@ -69,7 +75,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                         EditText editText = dialogView.findViewById(R.id.et_dialog_match_num);
                         String color = "";
                         String numberStr = editText.getText().toString().trim();
-                        if(numberStr.equals(""))
+                        if (numberStr.equals(""))
                             Snackbar.make(view, "값을 입력해 주세요.", Snackbar.LENGTH_LONG).show();
                         else {
                             int number = Integer.parseInt(numberStr);
@@ -92,6 +98,14 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                     });
                 }
             });
+        }
+
+        public ImageView getIVCard() {
+            return ivCard;
+        }
+
+        public ImageView getIvCheck() {
+            return ivCheck;
         }
 
     }
@@ -126,9 +140,10 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
 
         if (card.getIsMyCard()) { // 내 카드면 카드 정보대로 카드 셋팅
             holder.itemView.setBackgroundResource(imageId);
+            if (card.getIsOpened()) holder.ivCheck.setVisibility(View.VISIBLE);
         } else { // 남의 카드면 오픈되었을 경우에만 카드 정보대로 카드 셋팅
             if (card.getIsOpened()) {
-                if(card.getIsNewOpened()) {
+                if (card.getIsNewOpened()) {
                     int finalImageId = imageId;
                     holder.itemView.animate().withLayer()
                             .rotationY(90)
@@ -145,8 +160,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                                 }
                             }).start();
                     card.setIsNewOpened(false);
-                }
-                else
+                } else
                     holder.itemView.setBackgroundResource(imageId);
 
             } else {

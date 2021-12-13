@@ -374,7 +374,10 @@ public class GameActivity extends AppCompatActivity {
         int cardIndex = Integer.parseInt(cm.data.trim());
 
         if(cardOwner.equals(userName)) {
-            // 내 카드 오픈됨
+            myCardList.get(cardIndex).setIsOpened(true);
+            myCardList.get(cardIndex).setIsNewOpened(true);
+            myCardListAdapter.setCardList(myCardList);
+            myCardListAdapter.notifyDataSetChanged();
         } else {
             userCardList.get(cardOwner).get(cardIndex).setIsOpened(true);
             userCardList.get(cardOwner).get(cardIndex).setIsNewOpened(true);
