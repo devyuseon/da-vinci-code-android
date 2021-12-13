@@ -17,6 +17,7 @@ class Card implements Serializable {
     private String cardColor;
     private Boolean isJocker;
     private Boolean isOpened;
+    private Boolean isNewOpened;
     private Boolean isMyCard;
 
     public Card(String color, int num, Boolean isMyCard) {
@@ -27,6 +28,8 @@ class Card implements Serializable {
         if (cardNum == -1) this.isJocker = true;
         else this.isJocker = false;
         isOpened = false;
+        isNewOpened = false;
+
     }
 
     @Override

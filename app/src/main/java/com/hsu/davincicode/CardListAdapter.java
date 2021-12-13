@@ -128,30 +128,34 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
             holder.itemView.setBackgroundResource(imageId);
         } else { // 남의 카드면 오픈되었을 경우에만 카드 정보대로 카드 셋팅
             if (card.getIsOpened()) {
-                holder.itemView.setBackgroundResource(imageId);
+                if(card.getIsNewOpened()) {
+                    int finalImageId = imageId;
+                    holder.itemView.animate().withLayer()
+                            .rotationY(90)
+                            .setDuration(150)
+                            .withEndAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    holder.itemView.setBackgroundResource(finalImageId);
+                                    holder.itemView.setRotationY(-90);
+                                    holder.itemView.animate().withLayer()
+                                            .rotationY(0)
+                                            .setDuration(500)
+                                            .start();
+                                }
+                            }).start();
+                    card.setIsNewOpened(false);
+                }
+                else
+                    holder.itemView.setBackgroundResource(imageId);
+
             } else {
                 _imageId = "card_" + card.getCardColor() + "unknown";
                 imageId = holder.itemView.getContext().getResources().getIdentifier(_imageId, "drawable", holder.itemView.getContext().getPackageName());
 
                 holder.itemView.setBackgroundResource(imageId);
 
-//                if(card.getIsOpened()){
-//                    int finalImageId = imageId;
-//                    holder.itemView.animate().withLayer()
-//                            .rotationY(90)
-//                            .setDuration(150)
-//                            .withEndAction(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    holder.itemView.setBackgroundResource(finalImageId);
-//                                    holder.itemView.setRotationY(-90);
-//                                    holder.itemView.animate().withLayer()
-//                                            .rotationY(0)
-//                                            .setDuration(500)
-//                                            .start();
-//                                }
-//                            }).start();
-//                }
+
             }
         }
 
