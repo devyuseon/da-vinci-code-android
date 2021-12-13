@@ -20,6 +20,8 @@ class Card implements Serializable {
     private Boolean isNewOpened;
     private Boolean isMyCard;
 
+    public Card() {}
+
     public Card(String color, int num, Boolean isMyCard) {
         this.owner = "RoomId";
         this.cardColor = color;

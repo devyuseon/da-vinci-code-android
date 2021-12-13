@@ -44,6 +44,8 @@ public class GameActivity extends AppCompatActivity {
     CardListAdapter myCardListAdapter;
     private final int MAXCARDSCOUNT = 26;
     private int leftCardsCount = MAXCARDSCOUNT;
+    private int leftBlackCardsCount = MAXCARDSCOUNT / 2;
+    private int leftWhiteCardsCount = MAXCARDSCOUNT / 2;
     private ArrayList<String> userList = new ArrayList<>();
     private ArrayList<Card> myCardList = new ArrayList<>();
     private Map<String, ArrayList<Card>> userCardList = new HashMap<>();
@@ -155,46 +157,41 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-    /*public void setTimer(int time) {
-        binding.tvTime.setVisibility(View.VISIBLE);
-
-        // 1000*timems(time초)동안 1000ms(1초)마다 실행
-        CountDownTimer countDownTimer = new CountDownTimer(time * 1000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                binding.tvTime.setText(String.valueOf((int) (millisUntilFinished / 1000)));
-            }
-
-            @Override
-            public void onFinish() {
-                binding.tvTime.setText("timeover");
-            }
-        };
-
-        countDownTimer.start();
-
-    }*/
-
-    /*public void cancleTimer() {
-        binding.tvTime.setVisibility(View.INVISIBLE);
-        countDownTimer.cancel();
-    }*/
-
     public void setUserListCanMatch(Boolean isCanMatch) {
         for (String user : userList) {
             userCardListAdpater.get(user).setCanMatch(isCanMatch);
         }
     }
 
-    public void notifyLeftCardsCount(String opt) {
+    public void notifyLeftCardsCount(String color, String opt) {
         if(opt.equals("INIT")) {
             leftCardsCount -= myCardList.size() * 2;
         }
         if(opt.equals("DECREASE")) {
+            if (color.equals("b")) {
+                leftBlackCardsCount--;
+            } else {
+                leftWhiteCardsCount--;
+            }
             leftCardsCount --;
         }
 
-        Log.d("GAME", String.format("남은 카드는 %d개 입니다.",leftCardsCount));
+        Log.d("GAME", String.format("남은 카드: 검은색 %d개, 흰색 %d개, 총 %d개",leftBlackCardsCount, leftWhiteCardsCount, leftCardsCount));
+    }
+
+    public void initLeftCardByColor(ArrayList<Card> cardList) {
+        int b_cnt = 0;
+        int w_cnt = 0;
+        for (Card card : cardList) {
+            if (card.getCardColor().equals("b")) {
+                b_cnt++;
+            }
+            if (card.getCardColor().equals("w")) {
+                w_cnt++;
+            }
+        }
+        leftBlackCardsCount -= b_cnt;
+        leftWhiteCardsCount -= w_cnt;
     }
 
     // 카드 맞추기 or PASS 다이얼로그
@@ -231,9 +228,22 @@ public class GameActivity extends AppCompatActivity {
         return cardList;
     }
 
-    public void setTakeCardBtnVisibility(int visibility) {
+    public void setTakeBlackCardBtnVisibility(int visibility) {
         binding.btnTakeBlackCard.setVisibility(visibility);
+    }
+
+    public void setTakeWhiteCardBtnVisibility(int visibility) {
         binding.btnTakeWhiteCard.setVisibility(visibility);
+    }
+
+    public void setLeftBlackCardsVisibility(int visibility) {
+        binding.ivCardBlackBottom.setVisibility(visibility);
+        binding.ivCardBlackTop.setVisibility(visibility);
+    }
+
+    public void setLeftWhiteCardsVisibility(int visibility) {
+        binding.ivCardWhiteBottom.setVisibility(visibility);
+        binding.ivCardWhiteTop.setVisibility(visibility);
     }
 
     //------------------------------------- 프로토콜 설정 -------------------------------------------//
@@ -273,15 +283,16 @@ public class GameActivity extends AppCompatActivity {
 
             myCardListAdapter.notifyDataSetChanged();
 
-            notifyLeftCardsCount("INIT");
+            notifyLeftCardsCount("INIT","INIT");
+            initLeftCardByColor(myCardList);
 
         } else { // 나 제외 다른 유저 카드 리스트 초기화
             ArrayList<Card> cardList = new ArrayList<>();
             cardList = initCardList(cm.list, cardList, false);
             Collections.sort(cardList, sortCard); // 정렬
             userCardList.put(cm.UserName, cardList); // 키: username 값: user cardlist
-
             setUserRecyclerView(cm.UserName);
+            initLeftCardByColor(cardList);
         }
 
         Log.d("CardList[내꺼]", myCardList.toString());
@@ -290,41 +301,57 @@ public class GameActivity extends AppCompatActivity {
 
     public void TURN(ChatMsg cm) {
         if (cm.data.equals(userName)) { // 내 턴이면
-            Snackbar.make(binding.getRoot(),  "당신의 턴입니다! 카드뽑기 버튼을 눌러주세요😊", Snackbar.LENGTH_SHORT).show();
+            if (leftCardsCount > 0) {
+                Snackbar.make(binding.getRoot(),  "당신의 턴입니다! 카드뽑기 버튼을 눌러주세요😊", Snackbar.LENGTH_SHORT).show();
 
-            setTakeCardBtnVisibility(View.VISIBLE);
-            binding.btnTakeBlackCard.setOnClickListener(v-> {
-                if (leftCardsCount > 0)
-                    sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId + "//b"));
+                if (leftBlackCardsCount > 0) {
+                    setTakeBlackCardBtnVisibility(View.VISIBLE);
+                    binding.btnTakeBlackCard.setOnClickListener(v-> {
+                        sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId + "//b"));
+                        showPassOrMatchDialog();
+                        setTakeBlackCardBtnVisibility(View.INVISIBLE);
+                        setTakeWhiteCardBtnVisibility(View.INVISIBLE);
+                    });
+                }
+
+                if (leftWhiteCardsCount > 0) {
+                    setTakeWhiteCardBtnVisibility(View.VISIBLE);
+                    binding.btnTakeWhiteCard.setOnClickListener(v-> {
+                        sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId + "//w"));
+                        showPassOrMatchDialog();
+                        setTakeBlackCardBtnVisibility(View.INVISIBLE);
+                        setTakeWhiteCardBtnVisibility(View.INVISIBLE);
+                    });
+                }
+
+            } else {
                 showPassOrMatchDialog();
-                setTakeCardBtnVisibility(View.INVISIBLE);
-            });
-            binding.btnTakeWhiteCard.setOnClickListener(v-> {
-                if (leftCardsCount > 0)
-                    sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId + "//w"));
-                showPassOrMatchDialog();
-                setTakeCardBtnVisibility(View.INVISIBLE);
-            });
+            }
+
         } else {
             Snackbar.make(binding.getRoot(), cm.data + "의 턴입니다.", Snackbar.LENGTH_SHORT).show();
         }
     }
 
     public void TAKECARD(ChatMsg cm) {
+        Card card = new Card();
         if (cm.UserName.equals(userName)) { // 내 카드 뽑기면
-            Card card = new Card(cm.data.substring(0, 1), Integer.parseInt(cm.data.substring(1)), true);
+            card = new Card(cm.data.substring(0, 1), Integer.parseInt(cm.data.substring(1)), true);
             myCardList.add(card);
             Collections.sort(myCardList, sortCard);
             myCardListAdapter.notifyDataSetChanged();
             Snackbar.make(binding.getRoot(), "랜덤으로 카드 1장을 뽑았습니다.", Snackbar.LENGTH_SHORT).show();
         } else {
-            Card card = new Card(cm.data.substring(0, 1), Integer.parseInt(cm.data.substring(1)), false);
+            card = new Card(cm.data.substring(0, 1), Integer.parseInt(cm.data.substring(1)), false);
             userCardList.get(cm.UserName).add(card);
             Collections.sort(userCardList.get(cm.UserName), sortCard);
             userCardListAdpater.get(cm.UserName).notifyDataSetChanged();
             Snackbar.make(binding.getRoot(), cm.UserName + "이 " + "카드 1장을 뽑았습니다.", Snackbar.LENGTH_SHORT).show();
         }
-        notifyLeftCardsCount("DECREASE");
+        notifyLeftCardsCount(card.getCardColor(),"DECREASE");
+
+        if (leftBlackCardsCount == 0) setLeftBlackCardsVisibility(View.INVISIBLE);
+        if (leftWhiteCardsCount == 0) setLeftWhiteCardsVisibility(View.INVISIBLE);
     }
 
     public void SUCCESS(ChatMsg cm) {
