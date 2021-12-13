@@ -222,12 +222,6 @@ public class GameActivity extends AppCompatActivity {
         return cardList;
     }
 
-    public void requestTakeCard() {
-        if (leftCardsCount > 0)
-            sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId));
-        showPassOrMatchDialog();
-    }
-
     public void setTakeCardBtnVisibility(int visibility) {
         binding.btnTakeBlackCard.setVisibility(visibility);
         binding.btnTakeWhiteCard.setVisibility(visibility);
@@ -291,11 +285,15 @@ public class GameActivity extends AppCompatActivity {
 
             setTakeCardBtnVisibility(View.VISIBLE);
             binding.btnTakeBlackCard.setOnClickListener(v-> {
-                requestTakeCard();
+                if (leftCardsCount > 0)
+                    sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId + "//b"));
+                showPassOrMatchDialog();
                 setTakeCardBtnVisibility(View.INVISIBLE);
             });
             binding.btnTakeWhiteCard.setOnClickListener(v-> {
-                requestTakeCard();
+                if (leftCardsCount > 0)
+                    sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId + "//w"));
+                showPassOrMatchDialog();
                 setTakeCardBtnVisibility(View.INVISIBLE);
             });
         } else {
