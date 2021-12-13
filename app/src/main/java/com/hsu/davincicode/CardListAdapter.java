@@ -69,21 +69,26 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                         EditText editText = dialogView.findViewById(R.id.et_dialog_match_num);
                         String color = "";
                         String numberStr = editText.getText().toString().trim();
-                        int number = Integer.parseInt(numberStr);
-                        switch (radioGroup.getCheckedRadioButtonId()) {
-                            case R.id.radio_BLACK:
-                                color = "b";
-                                break;
-                            case R.id.radio_WHITE:
-                                color = "w";
+                        if(numberStr.equals(""))
+                            Snackbar.make(view, "값을 입력해 주세요.", Snackbar.LENGTH_LONG).show();
+                        else {
+                            int number = Integer.parseInt(numberStr);
+                            switch (radioGroup.getCheckedRadioButtonId()) {
+                                case R.id.radio_BLACK:
+                                    color = "b";
+                                    break;
+                                case R.id.radio_WHITE:
+                                    color = "w";
+                            }
+                            if (number > 11 || number < -1) {
+                                Snackbar.make(view, "0이상 11이하의 숫자, 또는 조커일 경우 -1을 입력해 주세요.", Snackbar.LENGTH_LONG).show();
+                            } else {
+                                String msg = owner + "//" + color + numberStr + "//" + getAdapterPosition() + "//" + userInfo.getMyRoom().getRoomId();
+                                networkUtils.sendChatMsg(new ChatMsg(userInfo.getUserName(), "MATCHCARD", msg));
+                                dialog.dismiss();
+                            }
                         }
-                        if (number > 11 || number < -1) {
-                            Snackbar.make(view, "0이상 11이하의 숫자, 또는 조커일 경우 -1을 입력해 주세요.", Snackbar.LENGTH_LONG).show();
-                        } else {
-                            String msg = owner + "//" + color + numberStr + "//" + getAdapterPosition() + "//" + userInfo.getMyRoom().getRoomId();
-                            networkUtils.sendChatMsg(new ChatMsg(userInfo.getUserName(), "MATCHCARD", msg));
-                            dialog.dismiss();
-                        }
+
                     });
                 }
             });
@@ -127,7 +132,26 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
             } else {
                 _imageId = "card_" + card.getCardColor() + "unknown";
                 imageId = holder.itemView.getContext().getResources().getIdentifier(_imageId, "drawable", holder.itemView.getContext().getPackageName());
+
                 holder.itemView.setBackgroundResource(imageId);
+
+//                if(card.getIsOpened()){
+//                    int finalImageId = imageId;
+//                    holder.itemView.animate().withLayer()
+//                            .rotationY(90)
+//                            .setDuration(150)
+//                            .withEndAction(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    holder.itemView.setBackgroundResource(finalImageId);
+//                                    holder.itemView.setRotationY(-90);
+//                                    holder.itemView.animate().withLayer()
+//                                            .rotationY(0)
+//                                            .setDuration(500)
+//                                            .start();
+//                                }
+//                            }).start();
+//                }
             }
         }
 
