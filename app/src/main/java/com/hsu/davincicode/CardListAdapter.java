@@ -25,7 +25,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHolder> {
+public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHolder> implements ItemTouchHelperListener {
 
     private static String owner;
 
@@ -158,6 +158,22 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
 
             }
         }
+
+    }
+
+    @Override
+    public boolean onItemMove(int from_position, int to_position) {
+        Card card = cardList.get(from_position);
+        if (card.getIsJocker()) {
+            cardList.remove(from_position);
+            cardList.add(to_position, card);
+            notifyItemMoved(from_position, to_position);
+            return true;
+        } else return false;
+    }
+
+    @Override
+    public void onItemSwipe(int position) {
 
     }
 

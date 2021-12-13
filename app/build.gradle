@@ -46,5 +46,5 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
 
-
+    implementation 'jp.wasabeef:recyclerview-animators:4.0.2'
 }

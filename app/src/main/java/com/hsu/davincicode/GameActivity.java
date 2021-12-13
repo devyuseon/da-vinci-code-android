@@ -3,6 +3,7 @@ package com.hsu.davincicode;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,6 +28,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
+
 public class GameActivity extends AppCompatActivity {
     private ActivityGameBinding binding;
 
@@ -49,7 +52,7 @@ public class GameActivity extends AppCompatActivity {
 
     private Comparator<Card> sortCard;
 
-    private CountDownTimer countDownTimer;
+    //private CountDownTimer countDownTimer;
 
     private Handler handler = new Handler(); // 스레드에서 UI 작업하기 위한 핸들러
     private Boolean isDoReceiveRunning;
@@ -112,8 +115,14 @@ public class GameActivity extends AppCompatActivity {
 
     public void setMyRecyclerView() {
         myCardListAdapter = new CardListAdapter(getApplicationContext(),myCardList, userName);
-        binding.recyclerviewMycard.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
+        LinearLayoutManager manager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
+        manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelperCallback(myCardListAdapter));
+
+        binding.recyclerviewMycard.setLayoutManager(manager);
         binding.recyclerviewMycard.setAdapter(myCardListAdapter);
+        binding.recyclerviewMycard.setItemAnimator(new SlideInLeftAnimator());
+        helper.attachToRecyclerView(binding.recyclerviewMycard);
     }
 
     /* 리스트어답터, 리사이클러뷰 헤쉬맵으로 초기화. 키:유저네임, 값: */
@@ -146,7 +155,7 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-    public void setTimer(int time) {
+    /*public void setTimer(int time) {
         binding.tvTime.setVisibility(View.VISIBLE);
 
         // 1000*timems(time초)동안 1000ms(1초)마다 실행
@@ -164,12 +173,12 @@ public class GameActivity extends AppCompatActivity {
 
         countDownTimer.start();
 
-    }
+    }*/
 
-    public void cancleTimer() {
+    /*public void cancleTimer() {
         binding.tvTime.setVisibility(View.INVISIBLE);
         countDownTimer.cancel();
-    }
+    }*/
 
     public void setUserListCanMatch(Boolean isCanMatch) {
         for (String user : userList) {
@@ -208,7 +217,7 @@ public class GameActivity extends AppCompatActivity {
         });
 
         btn_match.setOnClickListener(v -> {
-            setTimer(10);
+            //setTimer(10);
             setUserListCanMatch(true);
             dialog.dismiss();
         });
@@ -330,6 +339,7 @@ public class GameActivity extends AppCompatActivity {
             Snackbar.make(binding.getRoot(), String.format("카드 맞추기 실패😱 카드가 오픈됩니다..", cm.UserName), Snackbar.LENGTH_SHORT).show();
         else
             Snackbar.make(binding.getRoot(), String.format("%s가 카드 맞추기에 실패했습니다. %s의 카드가 오픈됩니다!", cm.UserName, cm.UserName), Snackbar.LENGTH_SHORT).show();
+        sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
     }
 
     public void CARDOPEN(ChatMsg cm) {
