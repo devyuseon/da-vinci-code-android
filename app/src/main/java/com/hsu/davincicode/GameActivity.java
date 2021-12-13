@@ -222,6 +222,17 @@ public class GameActivity extends AppCompatActivity {
         return cardList;
     }
 
+    public void requestTakeCard() {
+        if (leftCardsCount > 0)
+            sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId));
+        showPassOrMatchDialog();
+    }
+
+    public void setTakeCardBtnVisibility(int visibility) {
+        binding.btnTakeBlackCard.setVisibility(visibility);
+        binding.btnTakeWhiteCard.setVisibility(visibility);
+    }
+
     //------------------------------------- 프로토콜 설정 -------------------------------------------//
 
     /* 유저 프로필 이미지뷰, 이름 텍스트뷰 설정 */
@@ -278,12 +289,14 @@ public class GameActivity extends AppCompatActivity {
         if (cm.data.equals(userName)) { // 내 턴이면
             Snackbar.make(binding.getRoot(),  "당신의 턴입니다! 카드뽑기 버튼을 눌러주세요😊", Snackbar.LENGTH_SHORT).show();
 
-            binding.btnCardOpen.setVisibility(View.VISIBLE);
-            binding.btnCardOpen.setOnClickListener(v -> {
-                if (leftCardsCount > 0)
-                    sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId));
-                binding.btnCardOpen.setVisibility(View.INVISIBLE);
-                showPassOrMatchDialog();
+            setTakeCardBtnVisibility(View.VISIBLE);
+            binding.btnTakeBlackCard.setOnClickListener(v-> {
+                requestTakeCard();
+                setTakeCardBtnVisibility(View.INVISIBLE);
+            });
+            binding.btnTakeWhiteCard.setOnClickListener(v-> {
+                requestTakeCard();
+                setTakeCardBtnVisibility(View.INVISIBLE);
             });
         } else {
             Snackbar.make(binding.getRoot(), cm.data + "의 턴입니다.", Snackbar.LENGTH_SHORT).show();

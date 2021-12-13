@@ -120,15 +120,70 @@
         app:layout_constraintStart_toEndOf="@+id/iv_player1"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/btn_card_open"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="카드뽑기"
-        android:visibility="invisible"
+    <ImageView
+        android:id="@+id/iv_card_black_bottom"
+        android:layout_width="203dp"
+        android:layout_height="182dp"
+        android:src="@drawable/card_b0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.25"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.432" />
+
+    <ImageView
+        android:id="@+id/iv_card_white_bottom"
+        android:layout_width="203dp"
+        android:layout_height="182dp"
+        android:src="@drawable/card_w0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.72"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.432" />
+
+    <ImageView
+        android:id="@+id/iv_card_black_top"
+        android:layout_width="203dp"
+        android:layout_height="182dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/card_b0"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_card_black_bottom"
+        app:layout_constraintStart_toStartOf="@+id/iv_card_black_bottom" />
+
+    <ImageView
+        android:id="@+id/iv_card_white_top"
+        android:layout_width="203dp"
+        android:layout_height="182dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/card_w0"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_card_white_bottom"
+        app:layout_constraintStart_toStartOf="@+id/iv_card_white_bottom" />
+
+    <Button
+        android:id="@+id/btn_take_black_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="뽑기"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_card_black_bottom"
+        app:layout_constraintEnd_toEndOf="@+id/iv_card_black_bottom"
+        app:layout_constraintStart_toStartOf="@+id/iv_card_black_bottom"
+        app:layout_constraintTop_toTopOf="@+id/iv_card_black_bottom" />
+
+    <Button
+        android:id="@+id/btn_take_white_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="뽑기"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_card_white_bottom"
+        app:layout_constraintEnd_toEndOf="@+id/iv_card_white_bottom"
+        app:layout_constraintStart_toStartOf="@+id/iv_card_white_bottom"
+        app:layout_constraintTop_toTopOf="@+id/iv_card_white_bottom" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
