@@ -168,6 +168,10 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
             cardList.remove(from_position);
             cardList.add(to_position, card);
             notifyItemMoved(from_position, to_position);
+
+            String msg = String.format("%s//%s//%s//%s//%s", userInfo.getMyRoom().getRoomId(), card.getCardColor(), card.getIsOpened(), from_position, to_position);
+            networkUtils.sendChatMsg(new ChatMsg(userInfo.getUserName(), "JOKER", msg));
+
             return true;
         } else return false;
     }

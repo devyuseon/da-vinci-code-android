@@ -356,6 +356,34 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    public void JOKER(ChatMsg cm) {
+        String[] data = cm.data.split("//");
+        String color = data[1];
+        Boolean isOpened = Boolean.getBoolean(data[2]);
+        int from = Integer.parseInt(data[3]);
+        int to = Integer.parseInt(data[4]);
+        String owner = data[5];
+
+        if (owner.equals(userName)) {
+            Card card = new Card(color, -1, true);
+            card.setIsJocker(true);
+            card.setIsOpened(isOpened);
+
+            myCardList.remove(from);
+            myCardList.add(to, card);
+        } else {
+            Card card = new Card(color, -1, false);
+            card.setIsJocker(true);
+            card.setIsOpened(isOpened);
+
+            userCardList.get(owner).remove(from);
+            userCardList.get(owner).add(to, card);
+            userCardListAdpater.get(owner).setCardList(userCardList.get(owner));
+            userCardListAdpater.get(owner).notifyDataSetChanged();
+        }
+
+    }
+
     //--------------------------------------------------------------------------------------------//
 
     /* Receive Task */
@@ -406,6 +434,10 @@ public class GameActivity extends AppCompatActivity {
 
                 if (cm.code.matches("CARDOPEN")) {
                     CARDOPEN(cm);
+                }
+
+                if (cm.code.matches("JOKER")) {
+                    JOKER(cm);
                 }
             });
         }
