@@ -137,18 +137,19 @@ public class GameActivity extends AppCompatActivity {
         binding.recyclerviewMycard.addItemDecoration(new RecyclerViewDecoration_w(40));
 
         myCardListAdapter.setOnItemClickListener((view, position) -> {
-            final Card card = myCardList.get(position);
+            if (myCardListAdapter.getCanSelect() && !myCardList.get(position).getIsOpened()) {
+                final Card card = myCardList.get(position);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                    .setTitle(String.format("%s %d번 카드를 오픈 하시겠습니까?", getColorString(card.getCardColor()), card.getCardNum()))
-                    .setPositiveButton("오픈!", (dialog, which) -> {
-                        String msg = String.format("%s//%d", roomId, position);
-                        sendMsgToServer(new ChatMsg(userName, "CARDSELECT", msg));
-                        sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
-                    });
-            AlertDialog dialog = builder.create();
-            dialog.show();
-
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                        .setTitle(String.format("%s %d번 카드를 오픈 하시겠습니까?", getColorString(card.getCardColor()), card.getCardNum()))
+                        .setPositiveButton("오픈!", (dialog, which) -> {
+                            String msg = String.format("%s//%d", roomId, position);
+                            sendMsgToServer(new ChatMsg(userName, "CARDSELECT", msg));
+                            sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
+                        });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
         });
     }
 
@@ -182,7 +183,7 @@ public class GameActivity extends AppCompatActivity {
             userCardListAdpater.put(user, cardListAdapter);
             userRecyclerView.put(user, recyclerView);
             userCardListAdpater.get(user).setOnItemClickListener((view, position) -> {
-                if (userCardListAdpater.get(user).getCanMatch()) {
+                if (userCardListAdpater.get(user).getCanMatch() && !userCardList.get(user).get(position).getIsOpened()) {
                     showMatchWhatDialog(user, view, position);
                 }
             });
