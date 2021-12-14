@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -132,8 +133,16 @@ public class GameActivity extends AppCompatActivity {
 
         myCardListAdapter.setOnItemClickListener((view, position) -> {
             final Card card = myCardList.get(position);
-            String msg = String.format("%s//%d",roomId,position);
-            sendMsgToServer(new ChatMsg(userName, "CARDSELECT", msg));
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setTitle(String.format("%s %d번 카드를 오픈 하시겠습니까?", getColorString(card.getCardColor()),card.getCardNum()))
+                    .setPositiveButton("오픈!", (dialog, which) -> {
+                        String msg = String.format("%s//%d",roomId,position);
+                        sendMsgToServer(new ChatMsg(userName, "CARDSELECT", msg));
+                    });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
         });
     }
 
@@ -383,7 +392,8 @@ public class GameActivity extends AppCompatActivity {
                 }
 
             } else {
-                showPassOrMatchDialog();
+                Snackbar.make(binding.getRoot(), "공개할 카드를 선택해 주세요!", Snackbar.LENGTH_SHORT).show();
+                myCardListAdapter.setCanSelect(true);
             }
 
         } else {
@@ -467,12 +477,6 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-    public void CARDSELECT(ChatMsg cm) {
-        Snackbar.make(binding.getRoot(), "공개할 카드를 선택해 주세요!", Snackbar.LENGTH_SHORT).show();
-
-        myCardListAdapter.setCanSelect(true);
-    }
-
     public void GAMEOVER(ChatMsg cm) {
 
     }
@@ -531,10 +535,6 @@ public class GameActivity extends AppCompatActivity {
 
                 if (cm.code.matches("JOKER")) {
                     JOKER(cm);
-                }
-
-                if (cm.code.matches("CARDSELECT")) {
-                    CARDSELECT(cm);
                 }
 
                 if (cm.code.matches("GAMEOVER")) {
