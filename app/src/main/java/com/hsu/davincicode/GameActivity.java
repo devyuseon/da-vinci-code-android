@@ -139,6 +139,7 @@ public class GameActivity extends AppCompatActivity {
                     .setPositiveButton("오픈!", (dialog, which) -> {
                         String msg = String.format("%s//%d",roomId,position);
                         sendMsgToServer(new ChatMsg(userName, "CARDSELECT", msg));
+                        sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
                     });
             AlertDialog dialog = builder.create();
             dialog.show();
@@ -479,7 +480,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void CARDSELECT(ChatMsg cm) {
-        Snackbar.make(binding.getRoot(), "공개할 카드를 선택해 주세요!", Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(binding.getRoot(), "맞추기 실패입니다. 공개할 카드를 선택해주세요", Snackbar.LENGTH_SHORT).show();
         myCardListAdapter.setCanSelect(true);
     }
 
