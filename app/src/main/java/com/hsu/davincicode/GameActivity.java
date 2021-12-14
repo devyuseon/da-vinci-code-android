@@ -420,6 +420,7 @@ public class GameActivity extends AppCompatActivity {
                 }
 
             } else {
+                Snackbar.make(binding.getRoot(), "당신의 턴입니다! 더 이상 뽑을 카드가 없습니다😊", Snackbar.LENGTH_SHORT).show();
                 showPassOrMatchDialog();
             }
 
@@ -437,7 +438,7 @@ public class GameActivity extends AppCompatActivity {
             myCardListAdapter.setCardList(myCardList);
             myCardListAdapter.notifyDataSetChanged();
             Snackbar.make(binding.getRoot(), "랜덤으로 카드 1장을 뽑았습니다.", Snackbar.LENGTH_SHORT).show();
-            Log.d("MyCardList",myCardList.toString());
+            Log.d("MyCardList", myCardList.toString());
         } else {
             card = new Card(cm.data.substring(0, 1), Integer.parseInt(cm.data.substring(1)), false);
             userCardList.get(cm.UserName).add(card);
@@ -459,11 +460,15 @@ public class GameActivity extends AppCompatActivity {
             handler.postDelayed(() -> {
                 if (leftCardsCount > 0)
                     showPassOrMatchDialog();
+                else {
+                    sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
+                }
             }, 2000);
 
         } else
             Snackbar.make(binding.getRoot(), String.format("%s가 카드를 맞췄습니다!👏", cm.UserName), Snackbar.LENGTH_SHORT).show();
     }
+
 
     public void FAIL(ChatMsg cm) {
         if (cm.UserName.equals(userName))
