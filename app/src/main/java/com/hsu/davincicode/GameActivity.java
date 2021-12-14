@@ -132,7 +132,8 @@ public class GameActivity extends AppCompatActivity {
 
         myCardListAdapter.setOnItemClickListener((view, position) -> {
             final Card card = myCardList.get(position);
-            Snackbar.make(binding.getRoot(), card.toString(), Snackbar.LENGTH_SHORT).show();
+            String msg = String.format("%s//%d",roomId,position);
+            sendMsgToServer(new ChatMsg(userName, "CARDSELECT", msg));
         });
     }
 
@@ -431,6 +432,7 @@ public class GameActivity extends AppCompatActivity {
         int cardIndex = Integer.parseInt(cm.data.trim());
 
         if (cardOwner.equals(userName)) {
+            myCardListAdapter.setCanSelect(false);
             myCardList.get(cardIndex).setIsOpened(true);
             myCardList.get(cardIndex).setIsNewOpened(true);
             myCardListAdapter.setCardList(myCardList);
@@ -452,12 +454,6 @@ public class GameActivity extends AppCompatActivity {
         String owner = data[5];
 
         if (owner.equals(userName)) {
-            Card card = new Card(color, -1, true);
-            card.setIsJocker(true);
-            card.setIsOpened(isOpened);
-
-            myCardList.remove(from);
-            myCardList.add(to, card);
         } else {
             Card card = new Card(color, -1, false);
             card.setIsJocker(true);
@@ -474,6 +470,7 @@ public class GameActivity extends AppCompatActivity {
     public void CARDSELECT(ChatMsg cm) {
         Snackbar.make(binding.getRoot(), "공개할 카드를 선택해 주세요!", Snackbar.LENGTH_SHORT).show();
 
+        myCardListAdapter.setCanSelect(true);
     }
 
     public void GAMEOVER(ChatMsg cm) {

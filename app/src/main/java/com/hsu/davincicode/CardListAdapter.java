@@ -35,7 +35,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     private ArrayList<Card> cardList;
     private static Boolean canMatch = false;
     private static Boolean canOpen = false;
-    private static Boolean canSelect = false;
+    private Boolean canSelect = false;
 
 
     private static UserInfo userInfo = UserInfo.getInstance();
@@ -50,6 +50,10 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
 
     public interface OnItemClickEventListener {
         void onItemClick(View view, int position);
+    }
+
+    public void setCanSelect(Boolean canSelect) {
+        this.canSelect = canSelect;
     }
 
     public static void setCanMatch(Boolean isCanMatch) {
@@ -125,6 +129,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         if (card.getIsMyCard()) { // 내 카드면 카드 정보대로 카드 셋팅
             holder.itemView.setBackgroundResource(imageId);
             if (card.getIsOpened()) {
+                holder.ivCheck.setVisibility(View.VISIBLE);
                 if (card.getIsNewOpened()) {
                     int finalImageId = imageId;
                     holder.itemView.animate().withLayer()
@@ -143,8 +148,6 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                             }).start();
                     card.setIsNewOpened(false);
                 }
-
-                holder.ivCheck.setVisibility(View.VISIBLE);
             }
         } else { // 남의 카드면 오픈되었을 경우에만 카드 정보대로 카드 셋팅
             if (card.getIsOpened()) {
