@@ -429,13 +429,15 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void TAKECARD(ChatMsg cm) {
-        Card card = new Card();
+        Card card;
         if (cm.UserName.equals(userName)) { // 내 카드 뽑기면
             card = new Card(cm.data.substring(0, 1), Integer.parseInt(cm.data.substring(1)), true);
             myCardList.add(card);
             Collections.sort(myCardList, sortCard);
+            myCardListAdapter.setCardList(myCardList);
             myCardListAdapter.notifyDataSetChanged();
             Snackbar.make(binding.getRoot(), "랜덤으로 카드 1장을 뽑았습니다.", Snackbar.LENGTH_SHORT).show();
+            Log.d("MyCardList",myCardList.toString());
         } else {
             card = new Card(cm.data.substring(0, 1), Integer.parseInt(cm.data.substring(1)), false);
             userCardList.get(cm.UserName).add(card);

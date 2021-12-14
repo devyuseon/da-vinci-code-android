@@ -3,6 +3,7 @@ package com.hsu.davincicode;
 
 import android.content.Context;
 import android.text.BoringLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,8 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     public interface OnItemClickEventListener {
         void onItemClick(View view, int position);
     }
+
+    public void setCardList(ArrayList<Card> list) { this.cardList = list; }
 
     public void setCanSelect(Boolean canSelect) {
         this.canSelect = canSelect;
@@ -127,9 +130,9 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         int imageId = holder.itemView.getContext().getResources().getIdentifier(_imageId, "drawable", holder.itemView.getContext().getPackageName());
 
         if (card.getIsMyCard()) { // 내 카드면 카드 정보대로 카드 셋팅
+            Log.d("MyCardList[Adapter]",cardList.toString());
             holder.itemView.setBackgroundResource(imageId);
             if (card.getIsOpened()) {
-                holder.ivCheck.setVisibility(View.VISIBLE);
                 if (card.getIsNewOpened()) {
                     int finalImageId = imageId;
                     holder.itemView.animate().withLayer()
@@ -148,6 +151,9 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
                             }).start();
                     card.setIsNewOpened(false);
                 }
+                holder.ivCheck.setVisibility(View.VISIBLE);
+            } else {
+                holder.ivCheck.setVisibility(View.INVISIBLE);
             }
         } else { // 남의 카드면 오픈되었을 경우에만 카드 정보대로 카드 셋팅
             if (card.getIsOpened()) {

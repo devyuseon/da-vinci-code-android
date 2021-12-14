@@ -36,6 +36,8 @@ class Card implements Serializable {
 
     @Override
     public String toString() {
-        return "("+ cardColor + " " + cardNum + ")";
+        String s = "";
+        if (isOpened) s = "오픈";
+        return "("+ cardColor + " " + cardNum + s + ")";
     }
 }
