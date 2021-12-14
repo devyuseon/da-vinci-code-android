@@ -16,10 +16,14 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.snackbar.SnackbarContentLayout;
 import com.hsu.davincicode.databinding.ActivityGameBinding;
 
 import java.util.ArrayList;
@@ -116,7 +120,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void setMyRecyclerView() {
-        myCardListAdapter = new CardListAdapter(getApplicationContext(),myCardList, userName);
+        myCardListAdapter = new CardListAdapter(getApplicationContext(), myCardList, userName);
         LinearLayoutManager manager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
         manager.setOrientation(LinearLayoutManager.HORIZONTAL);
         ItemTouchHelper helper = new ItemTouchHelper(new ItemTouchHelperCallback(myCardListAdapter));
@@ -125,6 +129,11 @@ public class GameActivity extends AppCompatActivity {
         binding.recyclerviewMycard.setAdapter(myCardListAdapter);
         binding.recyclerviewMycard.setItemAnimator(new SlideInLeftAnimator());
         helper.attachToRecyclerView(binding.recyclerviewMycard);
+
+        myCardListAdapter.setOnItemClickListener((view, position) -> {
+            final Card card = myCardList.get(position);
+            Snackbar.make(binding.getRoot(), card.toString(), Snackbar.LENGTH_SHORT).show();
+        });
     }
 
     /* 리스트어답터, 리사이클러뷰 헤쉬맵으로 초기화. 키:유저네임, 값: */
@@ -136,7 +145,12 @@ public class GameActivity extends AppCompatActivity {
             case 1:
                 recyclerView = binding.recyclerviewPlayer1;
                 break;
-            // 2,3,4 추가할것
+            /*case 2:
+                recyclerView = binding.recyclerviewPlayer2;
+                break;
+            case 3:
+                recyclerView = binding.recyclerviewPlayer3;
+                break;*/
             default:
                 System.out.println("플레이어가 한 명밖에 없음...!");
                 break;
@@ -149,12 +163,55 @@ public class GameActivity extends AppCompatActivity {
 
             userCardListAdpater.put(user, cardListAdapter);
             userRecyclerView.put(user, recyclerView);
+            userCardListAdpater.get(user).setOnItemClickListener((view, position) -> {
+                if (userCardListAdpater.get(user).getCanMatch()) {
+                    showMatchWhatDialog(user, view, position);
+                }
+            });
         }
 
         if (userList.size() == userRecyclerView.size()) {
             sendMsgToServer(new ChatMsg(userName, "START", roomId));
         }
 
+    }
+
+    public String getColorString(String s) {
+        if (s.equals("b")) return "검은색";
+        if (s.equals("w")) return "흰색";
+        else return "";
+    }
+
+    public void showMatchWhatDialog(String user, View view, int position) {
+        Card card = userCardList.get(user).get(position);
+
+        View dialogView = View.inflate(this, R.layout.dialog_match, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+        builder.setTitle(String.format("%s, 몇 번 카드일까요?", getColorString(card.getCardColor())))
+                .setView(dialogView)
+                .setCancelable(false);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        Button btn_match = dialogView.findViewById(R.id.btn_dialog_match);
+
+        btn_match.setOnClickListener(v1 -> {
+            EditText editText = dialogView.findViewById(R.id.et_dialog_match_num);
+            String numberStr = editText.getText().toString().trim();
+            if (numberStr.equals(""))
+                Snackbar.make(view, "값을 입력해 주세요.", Snackbar.LENGTH_LONG).show();
+            else {
+                int number = Integer.parseInt(numberStr);
+                if (number > 11 || number < -1) {
+                    Snackbar.make(view, "0이상 11이하의 숫자, 또는 조커일 경우 -1을 입력해 주세요.", Snackbar.LENGTH_LONG).show();
+                } else {
+                    String msg = user + "//" + card.getCardColor() + numberStr + "//" + position + "//" + userInfo.getMyRoom().getRoomId();
+                    networkUtils.sendChatMsg(new ChatMsg(userInfo.getUserName(), "MATCHCARD", msg));
+                    setUserListCanMatch(false);
+                    dialog.dismiss();
+                }
+            }
+        });
     }
 
     public void setUserListCanMatch(Boolean isCanMatch) {
@@ -164,19 +221,19 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void notifyLeftCardsCount(String color, String opt) {
-        if(opt.equals("INIT")) {
+        if (opt.equals("INIT")) {
             leftCardsCount -= myCardList.size() * 2;
         }
-        if(opt.equals("DECREASE")) {
+        if (opt.equals("DECREASE")) {
             if (color.equals("b")) {
                 leftBlackCardsCount--;
             } else {
                 leftWhiteCardsCount--;
             }
-            leftCardsCount --;
+            leftCardsCount--;
         }
 
-        Log.d("GAME", String.format("남은 카드: 검은색 %d개, 흰색 %d개, 총 %d개",leftBlackCardsCount, leftWhiteCardsCount, leftCardsCount));
+        Log.d("GAME", String.format("남은 카드: 검은색 %d개, 흰색 %d개, 총 %d개", leftBlackCardsCount, leftWhiteCardsCount, leftCardsCount));
     }
 
     public void initLeftCardByColor(ArrayList<Card> cardList) {
@@ -283,7 +340,7 @@ public class GameActivity extends AppCompatActivity {
 
             myCardListAdapter.notifyDataSetChanged();
 
-            notifyLeftCardsCount("INIT","INIT");
+            notifyLeftCardsCount("INIT", "INIT");
             initLeftCardByColor(myCardList);
 
         } else { // 나 제외 다른 유저 카드 리스트 초기화
@@ -302,11 +359,11 @@ public class GameActivity extends AppCompatActivity {
     public void TURN(ChatMsg cm) {
         if (cm.data.equals(userName)) { // 내 턴이면
             if (leftCardsCount > 0) {
-                Snackbar.make(binding.getRoot(),  "당신의 턴입니다! 카드뽑기 버튼을 눌러주세요😊", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(binding.getRoot(), "당신의 턴입니다! 카드뽑기 버튼을 눌러주세요😊", Snackbar.LENGTH_SHORT).show();
 
                 if (leftBlackCardsCount > 0) {
                     setTakeBlackCardBtnVisibility(View.VISIBLE);
-                    binding.btnTakeBlackCard.setOnClickListener(v-> {
+                    binding.btnTakeBlackCard.setOnClickListener(v -> {
                         sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId + "//b"));
                         showPassOrMatchDialog();
                         setTakeBlackCardBtnVisibility(View.INVISIBLE);
@@ -316,7 +373,7 @@ public class GameActivity extends AppCompatActivity {
 
                 if (leftWhiteCardsCount > 0) {
                     setTakeWhiteCardBtnVisibility(View.VISIBLE);
-                    binding.btnTakeWhiteCard.setOnClickListener(v-> {
+                    binding.btnTakeWhiteCard.setOnClickListener(v -> {
                         sendMsgToServer(new ChatMsg(userName, "TAKECARD", roomId + "//w"));
                         showPassOrMatchDialog();
                         setTakeBlackCardBtnVisibility(View.INVISIBLE);
@@ -348,21 +405,21 @@ public class GameActivity extends AppCompatActivity {
             userCardListAdpater.get(cm.UserName).notifyDataSetChanged();
             Snackbar.make(binding.getRoot(), cm.UserName + "이 " + "카드 1장을 뽑았습니다.", Snackbar.LENGTH_SHORT).show();
         }
-        notifyLeftCardsCount(card.getCardColor(),"DECREASE");
+        notifyLeftCardsCount(card.getCardColor(), "DECREASE");
 
         if (leftBlackCardsCount == 0) setLeftBlackCardsVisibility(View.INVISIBLE);
         if (leftWhiteCardsCount == 0) setLeftWhiteCardsVisibility(View.INVISIBLE);
     }
 
     public void SUCCESS(ChatMsg cm) {
-        if(cm.UserName.equals(userName))
+        if (cm.UserName.equals(userName))
             showPassOrMatchDialog();
         else
             Snackbar.make(binding.getRoot(), String.format("%s가 카드를 맞췄습니다!👏", cm.UserName), Snackbar.LENGTH_SHORT).show();
     }
 
     public void FAIL(ChatMsg cm) {
-        if(cm.UserName.equals(userName))
+        if (cm.UserName.equals(userName))
             Snackbar.make(binding.getRoot(), String.format("카드 맞추기 실패😱 카드가 오픈됩니다..", cm.UserName), Snackbar.LENGTH_SHORT).show();
         else
             Snackbar.make(binding.getRoot(), String.format("%s가 카드 맞추기에 실패했습니다. %s의 카드가 오픈됩니다!", cm.UserName, cm.UserName), Snackbar.LENGTH_SHORT).show();
@@ -373,7 +430,7 @@ public class GameActivity extends AppCompatActivity {
         String cardOwner = cm.UserName;
         int cardIndex = Integer.parseInt(cm.data.trim());
 
-        if(cardOwner.equals(userName)) {
+        if (cardOwner.equals(userName)) {
             myCardList.get(cardIndex).setIsOpened(true);
             myCardList.get(cardIndex).setIsNewOpened(true);
             myCardListAdapter.setCardList(myCardList);
@@ -411,6 +468,15 @@ public class GameActivity extends AppCompatActivity {
             userCardListAdpater.get(owner).setCardList(userCardList.get(owner));
             userCardListAdpater.get(owner).notifyDataSetChanged();
         }
+
+    }
+
+    public void CARDSELECT(ChatMsg cm) {
+        Snackbar.make(binding.getRoot(), "공개할 카드를 선택해 주세요!", Snackbar.LENGTH_SHORT).show();
+
+    }
+
+    public void GAMEOVER(ChatMsg cm) {
 
     }
 
@@ -468,6 +534,14 @@ public class GameActivity extends AppCompatActivity {
 
                 if (cm.code.matches("JOKER")) {
                     JOKER(cm);
+                }
+
+                if (cm.code.matches("CARDSELECT")) {
+                    CARDSELECT(cm);
+                }
+
+                if (cm.code.matches("GAMEOVER")) {
+                    GAMEOVER(cm);
                 }
             });
         }

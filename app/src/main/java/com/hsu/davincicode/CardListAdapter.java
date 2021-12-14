@@ -2,6 +2,7 @@ package com.hsu.davincicode;
 
 
 import android.content.Context;
+import android.text.BoringLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,13 +35,29 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
     private ArrayList<Card> cardList;
     private static Boolean canMatch = false;
     private static Boolean canOpen = false;
+    private static Boolean canSelect = false;
+
 
     private static UserInfo userInfo = UserInfo.getInstance();
     private NetworkObj networkObj = NetworkObj.getInstance();
     private static NetworkUtils networkUtils;
 
+    private OnItemClickEventListener onItemClickEventListener;
+
+    public void setOnItemClickListener(OnItemClickEventListener listener) {
+        onItemClickEventListener = listener;
+    }
+
+    public interface OnItemClickEventListener {
+        void onItemClick(View view, int position);
+    }
+
     public static void setCanMatch(Boolean isCanMatch) {
         canMatch = isCanMatch;
+    }
+
+    public static Boolean getCanMatch(){
+        return canMatch;
     }
 
     public void cardOpen(ArrayList<Card> newCardList) {
@@ -52,51 +69,18 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         private final ImageView ivCheck;
         private final ImageView ivCard;
 
-        public ViewHolder(View view) {
+        public ViewHolder(View view,final OnItemClickEventListener itemClickEventListener) {
             super(view);
             // 클릭 리스너 구현
             ivCard = view.findViewById(R.id.iv_card);
             ivCheck = view.findViewById(R.id.iv_check);
 
             ivCard.setOnClickListener(v -> {
-                if (canMatch) {
-                    View dialogView = View.inflate(context, R.layout.dialog_match, null);
-                    AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-                    builder.setTitle("카드 색상, 숫자를 맞춰주세요!")
-                            .setView(dialogView)
-                            .setCancelable(false);
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-
-                    Button btn_match = dialogView.findViewById(R.id.btn_dialog_match);
-
-                    btn_match.setOnClickListener(v1 -> {
-                        RadioGroup radioGroup = dialogView.findViewById(R.id.radioGroup_dialog_match);
-                        EditText editText = dialogView.findViewById(R.id.et_dialog_match_num);
-                        String color = "";
-                        String numberStr = editText.getText().toString().trim();
-                        if (numberStr.equals(""))
-                            Snackbar.make(view, "값을 입력해 주세요.", Snackbar.LENGTH_LONG).show();
-                        else {
-                            int number = Integer.parseInt(numberStr);
-                            switch (radioGroup.getCheckedRadioButtonId()) {
-                                case R.id.radio_BLACK:
-                                    color = "b";
-                                    break;
-                                case R.id.radio_WHITE:
-                                    color = "w";
-                            }
-                            if (number > 11 || number < -1) {
-                                Snackbar.make(view, "0이상 11이하의 숫자, 또는 조커일 경우 -1을 입력해 주세요.", Snackbar.LENGTH_LONG).show();
-                            } else {
-                                String msg = owner + "//" + color + numberStr + "//" + getAdapterPosition() + "//" + userInfo.getMyRoom().getRoomId();
-                                networkUtils.sendChatMsg(new ChatMsg(userInfo.getUserName(), "MATCHCARD", msg));
-                                dialog.dismiss();
-                            }
-                        }
-
-                    });
+                final int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    itemClickEventListener.onItemClick(v, position);
                 }
+
             });
         }
 
@@ -122,7 +106,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.ViewHo
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.item_cardlist, viewGroup, false);
 
-        return new ViewHolder(view);
+        return new ViewHolder(view, onItemClickEventListener);
     }
 
     @Override
