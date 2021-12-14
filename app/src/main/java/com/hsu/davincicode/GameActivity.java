@@ -392,8 +392,7 @@ public class GameActivity extends AppCompatActivity {
                 }
 
             } else {
-                Snackbar.make(binding.getRoot(), "공개할 카드를 선택해 주세요!", Snackbar.LENGTH_SHORT).show();
-                myCardListAdapter.setCanSelect(true);
+                showPassOrMatchDialog();
             }
 
         } else {
@@ -477,6 +476,11 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
+    public void CARDSELECT(ChatMsg cm) {
+        Snackbar.make(binding.getRoot(), "공개할 카드를 선택해 주세요!", Snackbar.LENGTH_SHORT).show();
+        myCardListAdapter.setCanSelect(true);
+    }
+
     public void GAMEOVER(ChatMsg cm) {
 
     }
@@ -535,6 +539,10 @@ public class GameActivity extends AppCompatActivity {
 
                 if (cm.code.matches("JOKER")) {
                     JOKER(cm);
+                }
+
+                if (cm.code.matches("CARDSELECT")) {
+                    CARDSELECT(cm);
                 }
 
                 if (cm.code.matches("GAMEOVER")) {
