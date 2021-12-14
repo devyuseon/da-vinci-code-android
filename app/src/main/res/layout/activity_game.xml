@@ -102,8 +102,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview_mycard"
-        android:layout_width="627dp"
-        android:layout_height="88dp"
+        android:layout_width="610dp"
+        android:layout_height="85dp"
         android:layout_marginStart="2dp"
         android:layout_marginBottom="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -112,63 +112,56 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview_player1"
-        android:layout_width="511dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="32dp"
+        android:layout_width="485dp"
+        android:layout_height="72dp"
+        android:layout_marginStart="8dp"
         android:layout_marginEnd="76dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.869"
         app:layout_constraintStart_toEndOf="@+id/iv_player1"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerview_player2"
-        android:layout_width="511dp"
-        android:layout_height="70dp"
-        android:rotation="0"
-        tools:layout_editor_absoluteX="60dp"
-        tools:layout_editor_absoluteY="273dp" />
-
     <ImageView
         android:id="@+id/iv_card_black_bottom"
-        android:layout_width="203dp"
-        android:layout_height="182dp"
+        android:layout_width="174dp"
+        android:layout_height="162dp"
         android:src="@drawable/card_b0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintHorizontal_bias="0.249"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.432" />
+        app:layout_constraintVertical_bias="0.497" />
 
     <ImageView
         android:id="@+id/iv_card_white_bottom"
-        android:layout_width="203dp"
-        android:layout_height="182dp"
+        android:layout_width="174dp"
+        android:layout_height="162dp"
         android:src="@drawable/card_w0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.72"
+        app:layout_constraintHorizontal_bias="0.748"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.432" />
+        app:layout_constraintVertical_bias="0.497" />
 
     <ImageView
         android:id="@+id/iv_card_black_top"
-        android:layout_width="203dp"
-        android:layout_height="182dp"
+        android:layout_width="174dp"
+        android:layout_height="162dp"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
-        android:src="@drawable/card_b0"
+        android:src="@drawable/card_bunknown"
         app:layout_constraintBottom_toBottomOf="@+id/iv_card_black_bottom"
         app:layout_constraintStart_toStartOf="@+id/iv_card_black_bottom" />
 
     <ImageView
         android:id="@+id/iv_card_white_top"
-        android:layout_width="203dp"
-        android:layout_height="182dp"
+        android:layout_width="177dp"
+        android:layout_height="162dp"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
-        android:src="@drawable/card_w0"
+        android:src="@drawable/card_wunknown"
         app:layout_constraintBottom_toBottomOf="@+id/iv_card_white_bottom"
         app:layout_constraintStart_toStartOf="@+id/iv_card_white_bottom" />
 

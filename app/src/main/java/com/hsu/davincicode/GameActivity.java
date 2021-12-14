@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -130,6 +131,7 @@ public class GameActivity extends AppCompatActivity {
         binding.recyclerviewMycard.setAdapter(myCardListAdapter);
         binding.recyclerviewMycard.setItemAnimator(new SlideInLeftAnimator());
         helper.attachToRecyclerView(binding.recyclerviewMycard);
+        binding.recyclerviewMycard.addItemDecoration(new RecyclerViewDecoration_w(40));
 
         myCardListAdapter.setOnItemClickListener((view, position) -> {
             final Card card = myCardList.get(position);
@@ -171,6 +173,7 @@ public class GameActivity extends AppCompatActivity {
             CardListAdapter cardListAdapter = new CardListAdapter(getApplicationContext(), cardList, user);
             recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
             recyclerView.setAdapter(cardListAdapter);
+            recyclerView.addItemDecoration(new RecyclerViewDecoration_w(40));
 
             userCardListAdpater.put(user, cardListAdapter);
             userRecyclerView.put(user, recyclerView);
@@ -552,6 +555,40 @@ public class GameActivity extends AppCompatActivity {
                     GAMEOVER(cm);
                 }
             });
+        }
+    }
+
+    public class RecyclerViewDecoration_w extends RecyclerView.ItemDecoration {
+
+        private final int divWidth;
+
+        public RecyclerViewDecoration_w(int divWidth)
+        {
+            this.divWidth = divWidth;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state)
+        {
+            super.getItemOffsets(outRect, view, parent, state);
+            outRect.right = divWidth;
+        }
+    }
+
+    public class RecyclerViewDecoration_h extends RecyclerView.ItemDecoration {
+
+        private final int divHeight;
+
+        public RecyclerViewDecoration_h(int divHeight)
+        {
+            this.divHeight = divHeight;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state)
+        {
+            super.getItemOffsets(outRect, view, parent, state);
+            outRect.top = divHeight;
         }
     }
 }
