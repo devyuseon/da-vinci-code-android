@@ -478,8 +478,7 @@ public class GameActivity extends AppCompatActivity {
 
         final Handler handler = new Handler();
         handler.postDelayed(() -> {
-            if (leftCardsCount > 0)
-                sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
+            sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
         }, 2000);
 
     }
