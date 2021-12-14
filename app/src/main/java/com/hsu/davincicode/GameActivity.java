@@ -523,6 +523,21 @@ public class GameActivity extends AppCompatActivity {
         myCardListAdapter.setCanSelect(true);
     }
 
+    public void LOOSE(ChatMsg cm) {
+        if (cm.UserName.equals(userName)) {
+            Snackbar.make(binding.getRoot(), "당신의 모든 카드가 공개되었습니다.", Snackbar.LENGTH_SHORT).show();
+        } else {
+            Snackbar.make(binding.getRoot(), String.format("%s의 모든 카드가 공개되었습니다.", cm.UserName), Snackbar.LENGTH_SHORT).show();
+            switch (userList.indexOf(cm.UserName)) {
+                case 0:
+                    binding.ivPlayer1LooseCheck.setVisibility(View.VISIBLE);
+                    break;
+                case 1:
+                    binding.ivPlayer2LooseCheck.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
     public void GAMEOVER(ChatMsg cm) {
         showRankingDialog(cm.list);
     }
@@ -585,6 +600,10 @@ public class GameActivity extends AppCompatActivity {
 
                 if (cm.code.matches("CARDSELECT")) {
                     CARDSELECT(cm);
+                }
+
+                if (cm.code.matches("LOOSE")) {
+                    LOOSE(cm);
                 }
 
                 if (cm.code.matches("GAMEOVER")) {

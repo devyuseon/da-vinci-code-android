@@ -186,4 +186,28 @@
         app:layout_constraintStart_toStartOf="@+id/iv_card_white_bottom"
         app:layout_constraintTop_toTopOf="@+id/iv_card_white_bottom" />
 
+    <ImageView
+        android:id="@+id/iv_player1_loose_check"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:alpha="70"
+        android:src="@drawable/card_opened_check"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_player1"
+        app:layout_constraintEnd_toEndOf="@+id/iv_player1"
+        app:layout_constraintStart_toStartOf="@+id/iv_player1"
+        app:layout_constraintTop_toTopOf="@+id/iv_player1" />
+
+    <ImageView
+        android:id="@+id/iv_player2_loose_check"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:visibility="invisible"
+        android:alpha="70"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_player2"
+        app:layout_constraintEnd_toEndOf="@+id/iv_player2"
+        app:layout_constraintStart_toStartOf="@+id/iv_player2"
+        app:layout_constraintTop_toTopOf="@+id/iv_player2"
+        android:src="@drawable/card_opened_check" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
