@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.AsyncTask;
@@ -64,6 +65,8 @@ public class GameActivity extends AppCompatActivity {
 
     private Handler handler = new Handler(); // 스레드에서 UI 작업하기 위한 핸들러
     private Boolean isDoReceiveRunning;
+
+    private RankingAdapter rankingAdapter;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -137,9 +140,9 @@ public class GameActivity extends AppCompatActivity {
             final Card card = myCardList.get(position);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                    .setTitle(String.format("%s %d번 카드를 오픈 하시겠습니까?", getColorString(card.getCardColor()),card.getCardNum()))
+                    .setTitle(String.format("%s %d번 카드를 오픈 하시겠습니까?", getColorString(card.getCardColor()), card.getCardNum()))
                     .setPositiveButton("오픈!", (dialog, which) -> {
-                        String msg = String.format("%s//%d",roomId,position);
+                        String msg = String.format("%s//%d", roomId, position);
                         sendMsgToServer(new ChatMsg(userName, "CARDSELECT", msg));
                         sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
                     });
@@ -174,6 +177,7 @@ public class GameActivity extends AppCompatActivity {
             recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
             recyclerView.setAdapter(cardListAdapter);
             recyclerView.addItemDecoration(new RecyclerViewDecoration_w(40));
+            recyclerView.setHasFixedSize(true);
 
             userCardListAdpater.put(user, cardListAdapter);
             userRecyclerView.put(user, recyclerView);
@@ -226,6 +230,25 @@ public class GameActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public void showRankingDialog(ArrayList<String> ranking) {
+        View dialogView = View.inflate(this, R.layout.dialog_gameover, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView)
+                .setPositiveButton("나가기", (dialog, which) -> {
+                    startActivity(new Intent(this, RoomListActivity.class));
+                    finish();
+                })
+                .setCancelable(false);
+
+        AlertDialog dialog = builder.create();
+
+        RecyclerView recyclerView = dialogView.findViewById(R.id.recyclerview_rank);
+        RankingAdapter rankingAdapter = new RankingAdapter(ranking);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+        recyclerView.setAdapter(rankingAdapter);
+        dialog.show();
     }
 
     public void setUserListCanMatch(Boolean isCanMatch) {
@@ -488,7 +511,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void GAMEOVER(ChatMsg cm) {
-
+        showRankingDialog(cm.list);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -562,14 +585,12 @@ public class GameActivity extends AppCompatActivity {
 
         private final int divWidth;
 
-        public RecyclerViewDecoration_w(int divWidth)
-        {
+        public RecyclerViewDecoration_w(int divWidth) {
             this.divWidth = divWidth;
         }
 
         @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state)
-        {
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
             super.getItemOffsets(outRect, view, parent, state);
             outRect.right = divWidth;
         }
@@ -579,14 +600,12 @@ public class GameActivity extends AppCompatActivity {
 
         private final int divHeight;
 
-        public RecyclerViewDecoration_h(int divHeight)
-        {
+        public RecyclerViewDecoration_h(int divHeight) {
             this.divHeight = divHeight;
         }
 
         @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state)
-        {
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
             super.getItemOffsets(outRect, view, parent, state);
             outRect.top = divHeight;
         }

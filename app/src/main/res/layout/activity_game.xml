@@ -21,6 +21,7 @@
         android:id="@+id/iv_player1"
         android:layout_width="60dp"
         android:layout_height="60dp"
+        android:layout_marginTop="8dp"
         android:src="@drawable/player_pink"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
@@ -104,8 +105,7 @@
         android:id="@+id/recyclerview_mycard"
         android:layout_width="610dp"
         android:layout_height="85dp"
-        android:layout_marginStart="2dp"
-        android:layout_marginBottom="1dp"
+        android:layout_marginBottom="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -114,10 +114,9 @@
         android:id="@+id/recyclerview_player1"
         android:layout_width="485dp"
         android:layout_height="72dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
         android:layout_marginEnd="76dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.869"
         app:layout_constraintStart_toEndOf="@+id/iv_player1"
         app:layout_constraintTop_toTopOf="parent" />
 
