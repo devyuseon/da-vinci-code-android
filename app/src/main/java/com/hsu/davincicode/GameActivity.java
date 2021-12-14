@@ -218,11 +218,11 @@ public class GameActivity extends AppCompatActivity {
             EditText editText = dialogView.findViewById(R.id.et_dialog_match_num);
             String numberStr = editText.getText().toString().trim();
             if (numberStr.equals(""))
-                Snackbar.make(view, "값을 입력해 주세요.", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(view, "값을 입력해 주세요.", Snackbar.LENGTH_SHORT).show();
             else {
                 int number = Integer.parseInt(numberStr);
                 if (number > 11 || number < -1) {
-                    Snackbar.make(view, "0이상 11이하의 숫자, 또는 조커일 경우 -1을 입력해 주세요.", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(view, "0이상 11이하의 숫자, 또는 조커일 경우 -1을 입력해 주세요.", Snackbar.LENGTH_SHORT).show();
                 } else {
                     String msg = user + "//" + card.getCardColor() + numberStr + "//" + position + "//" + userInfo.getMyRoom().getRoomId();
                     networkUtils.sendChatMsg(new ChatMsg(userInfo.getUserName(), "MATCHCARD", msg));
@@ -462,8 +462,12 @@ public class GameActivity extends AppCompatActivity {
         else
             Snackbar.make(binding.getRoot(), String.format("%s가 카드 맞추기에 실패했습니다. %s의 카드가 오픈됩니다!", cm.UserName, cm.UserName), Snackbar.LENGTH_SHORT).show();
 
-        if (leftCardsCount > 0)
-            sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
+        final Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            if (leftCardsCount > 0)
+                sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
+        }, 2000);
+
     }
 
     public void CARDOPEN(ChatMsg cm) {
