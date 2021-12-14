@@ -104,7 +104,7 @@ public class NetworkUtils implements Serializable {
                 cm.code = (String) networkObj.getOis().readObject();
                 cm.UserName = (String) networkObj.getOis().readObject();
                 cm.data = (String) networkObj.getOis().readObject();
-                if (cm.code.matches("ROOMLIST") || cm.code.matches("ROOMUSERLIST") || cm.code.matches("READY")) {
+                if (cm.code.matches("ROOMLIST") || cm.code.matches("ROOMUSERLIST") || cm.code.matches("READY") || cm.code.matches("GAMEOVER")) {
                     cm.list.clear();
                     cm.list = (ArrayList<String>) networkObj.getOis().readObject();
                 }

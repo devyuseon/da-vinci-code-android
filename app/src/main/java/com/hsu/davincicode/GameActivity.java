@@ -450,9 +450,16 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void SUCCESS(ChatMsg cm) {
-        if (cm.UserName.equals(userName))
-            showPassOrMatchDialog();
-        else
+        if (cm.UserName.equals(userName)) {
+            Snackbar.make(binding.getRoot(), "맞추기 성공!👏", Snackbar.LENGTH_SHORT).show();
+
+            final Handler handler = new Handler();
+            handler.postDelayed(() -> {
+                if (leftCardsCount > 0)
+                    showPassOrMatchDialog();
+            }, 2000);
+
+        } else
             Snackbar.make(binding.getRoot(), String.format("%s가 카드를 맞췄습니다!👏", cm.UserName), Snackbar.LENGTH_SHORT).show();
     }
 
@@ -497,6 +504,7 @@ public class GameActivity extends AppCompatActivity {
         String owner = data[5];
 
         if (owner.equals(userName)) {
+            Log.d("MyCardList", myCardList.toString());
         } else {
             Card card = new Card(color, -1, false);
             card.setIsJocker(true);
