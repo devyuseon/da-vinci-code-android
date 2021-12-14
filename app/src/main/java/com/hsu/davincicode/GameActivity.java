@@ -433,7 +433,9 @@ public class GameActivity extends AppCompatActivity {
             Snackbar.make(binding.getRoot(), String.format("카드 맞추기 실패😱 카드가 오픈됩니다..", cm.UserName), Snackbar.LENGTH_SHORT).show();
         else
             Snackbar.make(binding.getRoot(), String.format("%s가 카드 맞추기에 실패했습니다. %s의 카드가 오픈됩니다!", cm.UserName, cm.UserName), Snackbar.LENGTH_SHORT).show();
-        sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
+
+        if (leftCardsCount > 0)
+            sendMsgToServer(new ChatMsg(userName, "TURN", roomId));
     }
 
     public void CARDOPEN(ChatMsg cm) {
